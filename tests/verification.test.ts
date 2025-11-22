@@ -217,8 +217,8 @@ describe('Critical Test Verification', () => {
     expect(response).toHaveProperty('id', 'test-123');
 
     // Must have exactly one of result or error
-    const hasResult = response.result !== undefined;
-    const hasError = response.error !== undefined;
+    const hasResult = (response as any).result !== undefined;
+    const hasError = (response as any).error !== undefined;
 
     console.log('[TEST] Has result:', hasResult);
     console.log('[TEST] Has error:', hasError);
@@ -226,7 +226,7 @@ describe('Critical Test Verification', () => {
     expect(hasResult !== hasError).toBe(true); // XOR - exactly one must be true
 
     if (hasResult) {
-      const result = response.result as any;
+      const result = (response as any).result as any;
       expect(result).toHaveProperty('protocolVersion');
       expect(result).toHaveProperty('serverInfo');
       expect(result).toHaveProperty('capabilities');
@@ -248,10 +248,10 @@ describe('Critical Test Verification', () => {
 
     const response = await server.handleRequest(request);
 
-    console.log('[TEST] Error response:', response.error);
+    console.log('[TEST] Error response:', (response as any).error);
 
-    expect(response.error).toBeDefined();
-    const errorCode = response.error!.code;
+    expect((response as any).error).toBeDefined();
+    const errorCode = (response as any).error!.code;
 
     // Verify it's in MCP Flow custom range (-32050 to -32099)
     expect(errorCode).toBeGreaterThanOrEqual(-32099);

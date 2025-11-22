@@ -1,30 +1,24 @@
 /**
  * MCP Flow Protocol Types
  * Extension to Model Context Protocol for interactive, multi-turn tool interactions
+ *
+ * This module extends the official @modelcontextprotocol/sdk instead of reimplementing the protocol.
  */
+
+import type {
+  JSONRPCRequest,
+  JSONRPCResponse,
+  JSONRPCError,
+  Request
+} from '@modelcontextprotocol/sdk/types.js';
 
 /**
- * Base JSON-RPC 2.0 types compatible with MCP
+ * Re-export MCP SDK types for backward compatibility
+ * These are the official MCP protocol types, not reimplementations
  */
-export interface JsonRpcRequest {
-  jsonrpc: '2.0';
-  id?: string | number;
-  method: string;
-  params?: Record<string, unknown>;
-}
-
-export interface JsonRpcResponse {
-  jsonrpc: '2.0';
-  id: string | number;
-  result?: unknown;
-  error?: JsonRpcError;
-}
-
-export interface JsonRpcError {
-  code: number;
-  message: string;
-  data?: unknown;
-}
+export type JsonRpcRequest = JSONRPCRequest;
+export type JsonRpcResponse = JSONRPCResponse | JSONRPCError;
+export type { JSONRPCError as JsonRpcError };
 
 /**
  * Session identifier for tracking interaction state
@@ -143,8 +137,9 @@ export interface InteractionTurn {
 
 /**
  * interaction.start - Initiate interactive session
+ * Extends MCP SDK Request type for proper protocol integration
  */
-export interface InteractionStartRequest extends JsonRpcRequest {
+export interface InteractionStartRequest extends Request {
   method: 'interaction.start';
   params: {
     toolName: string;
@@ -154,18 +149,22 @@ export interface InteractionStartRequest extends JsonRpcRequest {
   };
 }
 
-export interface InteractionStartResponse extends JsonRpcResponse {
-  result: {
-    sessionId: SessionId;
-    initialPrompt?: InteractionPrompt;
-    state: InteractionState;
-  };
+export interface InteractionStartResult {
+  sessionId: SessionId;
+  initialPrompt?: InteractionPrompt;
+  state: InteractionState;
+}
+
+export interface InteractionStartResponse {
+  jsonrpc: '2.0';
+  id: string | number;
+  result: InteractionStartResult;
 }
 
 /**
  * interaction.prompt - Tool requests user input
  */
-export interface InteractionPromptRequest extends JsonRpcRequest {
+export interface InteractionPromptRequest extends Request {
   method: 'interaction.prompt';
   params: {
     sessionId: SessionId;
@@ -174,16 +173,20 @@ export interface InteractionPromptRequest extends JsonRpcRequest {
   };
 }
 
-export interface InteractionPromptResponse extends JsonRpcResponse {
-  result: {
-    acknowledged: boolean;
-  };
+export interface InteractionPromptResult {
+  acknowledged: boolean;
+}
+
+export interface InteractionPromptResponse {
+  jsonrpc: '2.0';
+  id: string | number;
+  result: InteractionPromptResult;
 }
 
 /**
  * interaction.respond - User provides input
  */
-export interface InteractionRespondRequest extends JsonRpcRequest {
+export interface InteractionRespondRequest extends Request {
   method: 'interaction.respond';
   params: {
     sessionId: SessionId;
@@ -191,17 +194,21 @@ export interface InteractionRespondRequest extends JsonRpcRequest {
   };
 }
 
-export interface InteractionRespondResponse extends JsonRpcResponse {
-  result: {
-    accepted: boolean;
-    validation?: ValidationResult;
-  };
+export interface InteractionRespondResult {
+  accepted: boolean;
+  validation?: ValidationResult;
+}
+
+export interface InteractionRespondResponse {
+  jsonrpc: '2.0';
+  id: string | number;
+  result: InteractionRespondResult;
 }
 
 /**
  * interaction.continue - Tool processes and continues
  */
-export interface InteractionContinueRequest extends JsonRpcRequest {
+export interface InteractionContinueRequest extends Request {
   method: 'interaction.continue';
   params: {
     sessionId: SessionId;
@@ -210,16 +217,20 @@ export interface InteractionContinueRequest extends JsonRpcRequest {
   };
 }
 
-export interface InteractionContinueResponse extends JsonRpcResponse {
-  result: {
-    state: InteractionState;
-  };
+export interface InteractionContinueResult {
+  state: InteractionState;
+}
+
+export interface InteractionContinueResponse {
+  jsonrpc: '2.0';
+  id: string | number;
+  result: InteractionContinueResult;
 }
 
 /**
  * interaction.complete - Finalize with result
  */
-export interface InteractionCompleteRequest extends JsonRpcRequest {
+export interface InteractionCompleteRequest extends Request {
   method: 'interaction.complete';
   params: {
     sessionId: SessionId;
@@ -228,17 +239,21 @@ export interface InteractionCompleteRequest extends JsonRpcRequest {
   };
 }
 
-export interface InteractionCompleteResponse extends JsonRpcResponse {
-  result: {
-    success: boolean;
-    finalResult: unknown;
-  };
+export interface InteractionCompleteResult {
+  success: boolean;
+  finalResult: unknown;
+}
+
+export interface InteractionCompleteResponse {
+  jsonrpc: '2.0';
+  id: string | number;
+  result: InteractionCompleteResult;
 }
 
 /**
  * interaction.cancel - Cancel ongoing interaction
  */
-export interface InteractionCancelRequest extends JsonRpcRequest {
+export interface InteractionCancelRequest extends Request {
   method: 'interaction.cancel';
   params: {
     sessionId: SessionId;
@@ -246,24 +261,34 @@ export interface InteractionCancelRequest extends JsonRpcRequest {
   };
 }
 
-export interface InteractionCancelResponse extends JsonRpcResponse {
-  result: {
-    cancelled: boolean;
-  };
+export interface InteractionCancelResult {
+  cancelled: boolean;
+}
+
+export interface InteractionCancelResponse {
+  jsonrpc: '2.0';
+  id: string | number;
+  result: InteractionCancelResult;
 }
 
 /**
  * interaction.getState - Retrieve current session state
  */
-export interface InteractionGetStateRequest extends JsonRpcRequest {
+export interface InteractionGetStateRequest extends Request {
   method: 'interaction.getState';
   params: {
     sessionId: SessionId;
   };
 }
 
-export interface InteractionGetStateResponse extends JsonRpcResponse {
-  result: SessionState;
+export interface InteractionGetStateResult {
+  sessionState: SessionState;
+}
+
+export interface InteractionGetStateResponse {
+  jsonrpc: '2.0';
+  id: string | number;
+  result: InteractionGetStateResult;
 }
 
 /**

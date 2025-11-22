@@ -76,9 +76,9 @@ describe('MCP Flow Integration Tests', () => {
 
       expect(response.jsonrpc).toBe('2.0');
       expect(response.id).toBe(1);
-      expect(response.error).toBeUndefined();
+      expect((response as any).error).toBeUndefined();
 
-      const result = response.result as any;
+      const result = (response as any).result as any;
       expect(result.protocolVersion).toBe('2024-11-05');
       expect(result.serverInfo).toBeDefined();
       expect(result.serverInfo.name).toBe('mcp-flow-server');
@@ -101,8 +101,8 @@ describe('MCP Flow Integration Tests', () => {
       expect(response.jsonrpc).toBe('2.0');
       expect(response.id).toBe('test-123');
       // Either result or error must be present, but not both
-      expect(response.result !== undefined || response.error !== undefined).toBe(true);
-      expect(response.result !== undefined && response.error !== undefined).toBe(false);
+      expect((response as any).result !== undefined || (response as any).error !== undefined).toBe(true);
+      expect((response as any).result !== undefined && (response as any).error !== undefined).toBe(false);
     });
 
     it('should return proper error for invalid method', async () => {
@@ -114,9 +114,9 @@ describe('MCP Flow Integration Tests', () => {
 
       const response = await server.handleRequest(request);
 
-      expect(response.error).toBeDefined();
-      expect(response.error?.code).toBe(-32601); // Method not found
-      expect(response.result).toBeUndefined();
+      expect((response as any).error).toBeDefined();
+      expect((response as any).error?.code).toBe(-32601); // Method not found
+      expect((response as any).result).toBeUndefined();
     });
 
     it('should use proper MCP Flow error codes (outside reserved range)', async () => {
@@ -131,9 +131,9 @@ describe('MCP Flow Integration Tests', () => {
 
       const response = await server.handleRequest(request);
 
-      expect(response.error).toBeDefined();
+      expect((response as any).error).toBeDefined();
       // MCP Flow error codes should be in -32050 to -32099 range
-      expect(response.error!.code).toBe(-32050); // SESSION_NOT_FOUND
+      expect((response as any).error!.code).toBe(-32050); // SESSION_NOT_FOUND
     });
   });
 
@@ -521,8 +521,8 @@ describe('MCP Flow Integration Tests', () => {
 
       const response = await server.handleRequest(request);
 
-      expect(response.error).toBeDefined();
-      expect(response.error?.message).toContain('Tool not found');
+      expect((response as any).error).toBeDefined();
+      expect((response as any).error?.message).toContain('Tool not found');
     });
   });
 

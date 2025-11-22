@@ -51,8 +51,8 @@ describe('InteractiveServer', () => {
       };
 
       return server.handleRequest(request).then((response) => {
-        expect(response.error).toBeUndefined();
-        expect(response.result).toBeDefined();
+        expect((response as any).error).toBeUndefined();
+        expect((response as any).result).toBeDefined();
       });
     });
 
@@ -80,8 +80,8 @@ describe('InteractiveServer', () => {
 
       const response = await server.handleRequest(request);
 
-      expect(response.error).toBeUndefined();
-      expect(response.result).toBeDefined();
+      expect((response as any).error).toBeUndefined();
+      expect((response as any).result).toBeDefined();
     });
 
     it('should handle interaction.start request', async () => {
@@ -104,8 +104,8 @@ describe('InteractiveServer', () => {
 
       const response = await server.handleRequest(request);
 
-      expect(response.error).toBeUndefined();
-      expect(response.result).toHaveProperty('sessionId');
+      expect((response as any).error).toBeUndefined();
+      expect((response as any).result).toHaveProperty('sessionId');
     });
 
     it('should return error for unknown tool', async () => {
@@ -120,8 +120,8 @@ describe('InteractiveServer', () => {
 
       const response = await server.handleRequest(request);
 
-      expect(response.error).toBeDefined();
-      expect(response.error?.message).toContain('Tool not found');
+      expect((response as any).error).toBeDefined();
+      expect((response as any).error?.message).toContain('Tool not found');
     });
 
     it('should handle interaction.respond request', async () => {
@@ -148,7 +148,7 @@ describe('InteractiveServer', () => {
       };
 
       const startResponse = await server.handleRequest(startRequest);
-      const sessionId = (startResponse.result as { sessionId: string }).sessionId;
+      const sessionId = ((startResponse as any).result as { sessionId: string }).sessionId;
 
       // Wait for prompt
       await new Promise((resolve) => setTimeout(resolve, 100));
@@ -169,8 +169,8 @@ describe('InteractiveServer', () => {
 
       const respondResponse = await server.handleRequest(respondRequest);
 
-      expect(respondResponse.error).toBeUndefined();
-      expect(respondResponse.result).toHaveProperty('accepted');
+      expect((respondResponse as any).error).toBeUndefined();
+      expect((respondResponse as any).result).toHaveProperty('accepted');
     });
 
     it('should handle interaction.cancel request', async () => {
@@ -191,7 +191,7 @@ describe('InteractiveServer', () => {
       };
 
       const startResponse = await server.handleRequest(startRequest);
-      const sessionId = (startResponse.result as { sessionId: string }).sessionId;
+      const sessionId = ((startResponse as any).result as { sessionId: string }).sessionId;
 
       // Cancel
       const cancelRequest = {
@@ -206,8 +206,8 @@ describe('InteractiveServer', () => {
 
       const cancelResponse = await server.handleRequest(cancelRequest);
 
-      expect(cancelResponse.error).toBeUndefined();
-      expect(cancelResponse.result).toHaveProperty('cancelled', true);
+      expect((cancelResponse as any).error).toBeUndefined();
+      expect((cancelResponse as any).result).toHaveProperty('cancelled', true);
     });
 
     it('should return error for invalid method', async () => {
@@ -219,8 +219,8 @@ describe('InteractiveServer', () => {
 
       const response = await server.handleRequest(request);
 
-      expect(response.error).toBeDefined();
-      expect(response.error?.code).toBe(-32601);
+      expect((response as any).error).toBeDefined();
+      expect((response as any).error?.code).toBe(-32601);
     });
   });
 
