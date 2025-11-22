@@ -1,0 +1,114 @@
+name: MCP Flow Tests
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    name: Test on Node.js ${{ matrix.node-version }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        run: npm run lint --if-present
+
+      - name: Build project
+        run: npm run build
+
+      - name: Run all tests
+        run: npm test
+
+      - name: Run integration tests specifically
+        run: npm test -- tests/integration.test.ts
+
+      - name: Run verification tests specifically
+        run: npm test -- tests/verification.test.ts
+
+  coverage:
+    name: Test Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Run tests with coverage
+        run: npm test -- --coverage --coverageReporters=text-summary
+
+      - name: Display coverage summary
+        run: |
+          echo "## Test Coverage Summary" >> $GITHUB_STEP_SUMMARY
+          npm test -- --coverage --coverageReporters=text >> $GITHUB_STEP_SUMMARY || true
+
+  protocol-compliance:
+    name: Protocol Compliance Verification
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Run protocol compliance tests
+        run: npm test -- tests/protocol.test.ts
+
+      - name: Run integration tests
+        run: npm test -- tests/integration.test.ts
+
+      - name: Verify all tests pass
+        run: npm test
+
+      - name: Generate test summary
+        if: always()
+        run: |
+          echo "## MCP Flow Protocol Compliance" >> $GITHUB_STEP_SUMMARY
+          echo "✅ All 66 tests must pass for compliance" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Test Categories:" >> $GITHUB_STEP_SUMMARY
+          echo "- Protocol Tests (JSON-RPC 2.0 & MCP compliance)" >> $GITHUB_STEP_SUMMARY
+          echo "- Integration Tests (Real client-server communication)" >> $GITHUB_STEP_SUMMARY
+          echo "- Server Tests (Interactive server functionality)" >> $GITHUB_STEP_SUMMARY
+          echo "- Session Tests (State management)" >> $GITHUB_STEP_SUMMARY
+          echo "- Verification Tests (Evidence-based validation)" >> $GITHUB_STEP_SUMMARY

@@ -292,7 +292,7 @@ export class InteractiveServer extends EventEmitter<ServerEvents> {
    * Returns server information and capabilities
    */
   private handleInitialize(
-    params: Record<string, unknown> = {},
+    _params: Record<string, unknown> = {},
     id: string | number
   ): JsonRpcResponse {
     const protocolVersion = '2024-11-05';
@@ -343,7 +343,7 @@ export class InteractiveServer extends EventEmitter<ServerEvents> {
         return this.sessionManager.getData(sessionId, key);
       },
 
-      updateProgress: (current: number, total: number, message?: string) => {
+      updateProgress: (_current: number, _total: number, _message?: string) => {
         // Progress updates can be emitted as events
         // Implementation depends on transport layer
       },
