@@ -180,6 +180,7 @@ export class InteractiveClient extends EventEmitter<ClientEvents> {
 
     try {
       // Poll for prompts and completion
+      // eslint-disable-next-line no-constant-condition
       while (true) {
         const state = await this.getState(sessionId);
 
