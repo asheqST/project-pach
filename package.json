@@ -9,6 +9,9 @@
     "watch": "tsc --watch",
     "test": "jest",
     "test:watch": "jest --watch",
+    "test:integration": "jest tests/integration.test.ts",
+    "example:standalone": "ts-node examples/standalone-integration.ts",
+    "example:sdk": "ts-node examples/integration-typescript-sdk.ts",
     "lint": "eslint src --ext .ts",
     "format": "prettier --write \"src/**/*.ts\"",
     "prepublishOnly": "npm run build"

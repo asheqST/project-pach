@@ -22,6 +22,9 @@ export * from './client';
 // Interaction patterns
 export * from './patterns';
 
+// Integration adapters
+export * from './adapters';
+
 // Example tools (optional, for demonstration)
 export * from './examples';
 
