@@ -25,6 +25,8 @@ MCP Flow extends the Model Context Protocol to enable tools that can have dialog
 npm install mcp-flow
 ```
 
+> **📦 Local Development:** If you want to use MCPFlow locally before it's published to npm, see the [Local Setup Guide](docs/LOCAL_SETUP.md) for detailed instructions on building and linking the package.
+
 ### Server Setup
 
 ```typescript
