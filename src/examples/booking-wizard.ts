@@ -5,6 +5,7 @@
 
 import { InteractiveTool, ToolExecutionContext } from '../server/interactive-server';
 import { WizardBuilder } from '../patterns/wizard';
+import { PromptType } from '../protocol/types';
 
 /**
  * Travel booking wizard tool
@@ -81,7 +82,7 @@ export const bookingWizardTool: InteractiveTool = {
         {
           id: 'mealPreference',
           prompt: {
-            type: 'choice' as const,
+            type: PromptType.CHOICE,
             message: 'Do you have any meal preferences?',
             choices: [
               { value: 'none', label: 'No preference' },

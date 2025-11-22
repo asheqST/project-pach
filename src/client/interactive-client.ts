@@ -13,7 +13,7 @@ import {
   InteractionResponse,
   InteractiveCapabilities,
 } from '../protocol/types';
-import { RequestBuilders, Errors } from '../protocol/utils';
+import { RequestBuilders } from '../protocol/utils';
 
 export interface ClientConfig {
   timeout?: number;
@@ -38,15 +38,12 @@ export interface Transport {
  */
 export class InteractiveClient extends EventEmitter<ClientEvents> {
   private transport: Transport;
-  private config: Required<ClientConfig>;
   private capabilities?: InteractiveCapabilities;
 
-  constructor(transport: Transport, config: ClientConfig = {}) {
+  constructor(transport: Transport, _clientConfig: ClientConfig = {}) {
     super();
     this.transport = transport;
-    this.config = {
-      timeout: config.timeout ?? 30000,
-    };
+    // Note: timeout config reserved for future implementation
   }
 
   /**

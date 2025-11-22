@@ -151,13 +151,13 @@ describe('Protocol Utils', () => {
   describe('Errors', () => {
     it('should create session not found error', () => {
       const error = Errors.sessionNotFound('test-session');
-      expect(error.code).toBe(-32001);
+      expect(error.code).toBe(-32050); // MCP Flow error code
       expect(error.message).toContain('test-session');
     });
 
     it('should create validation error', () => {
       const error = Errors.validationFailed('Invalid input');
-      expect(error.code).toBe(-32004);
+      expect(error.code).toBe(-32053); // MCP Flow error code
       expect(error.message).toBe('Invalid input');
     });
   });

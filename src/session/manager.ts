@@ -8,7 +8,6 @@ import {
   SessionId,
   SessionState,
   InteractionState,
-  SessionMetadata,
   InteractionTurn,
   InteractionPrompt,
   InteractionResponse,
@@ -181,7 +180,10 @@ export class SessionManager extends EventEmitter<SessionEvents> {
       throw new Error(`Session not found: ${sessionId}`);
     }
 
+    // Store the result in accumulated data
+    session.accumulatedData.result = result;
     session.state = InteractionState.COMPLETED;
+    session.metadata.lastActivityAt = Date.now();
     this.clearTimeout(sessionId);
     this.emit('completed', sessionId, result);
 

@@ -234,7 +234,7 @@ describe('InteractiveServer', () => {
 
       server.registerTool(tool);
 
-      server.on('toolStarted', (sessionId, toolName) => {
+      server.on('toolStarted', (_sessionId, toolName) => {
         expect(toolName).toBe('test-tool');
         done();
       });
@@ -258,7 +258,7 @@ describe('InteractiveServer', () => {
 
       server.registerTool(tool);
 
-      server.on('toolCompleted', (sessionId, result) => {
+      server.on('toolCompleted', (_sessionId, result) => {
         expect(result).toEqual({ success: true });
         done();
       });

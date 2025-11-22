@@ -7,8 +7,6 @@ import {
   SessionId,
   SessionState,
   InteractionState,
-  InteractionPrompt,
-  InteractionResponse,
 } from '../protocol/types';
 
 /**

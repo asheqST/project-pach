@@ -9,12 +9,12 @@ import { InteractionPrompt } from '../protocol/types';
 export interface ValidationConfig {
   maxAttempts?: number;
   prompt: InteractionPrompt;
-  validate: (value: unknown) => Promise<ValidationResult> | ValidationResult;
+  validate: (value: unknown) => Promise<PatternValidationResult> | PatternValidationResult;
   onSuccess?: (value: unknown) => unknown;
   onFailure?: (errors: string[]) => void;
 }
 
-export interface ValidationResult {
+export interface PatternValidationResult {
   valid: boolean;
   error?: string;
   suggestion?: string;
@@ -91,7 +91,7 @@ export const Validators = {
   /**
    * Email validator
    */
-  email: (): ((value: unknown) => ValidationResult) => {
+  email: (): ((value: unknown) => PatternValidationResult) => {
     return (value: unknown) => {
       const email = String(value);
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -111,7 +111,7 @@ export const Validators = {
   /**
    * URL validator
    */
-  url: (): ((value: unknown) => ValidationResult) => {
+  url: (): ((value: unknown) => PatternValidationResult) => {
     return (value: unknown) => {
       try {
         new URL(String(value));
@@ -129,7 +129,7 @@ export const Validators = {
   /**
    * Range validator
    */
-  range: (min: number, max: number): ((value: unknown) => ValidationResult) => {
+  range: (min: number, max: number): ((value: unknown) => PatternValidationResult) => {
     return (value: unknown) => {
       const num = Number(value);
       if (isNaN(num)) {
@@ -156,7 +156,7 @@ export const Validators = {
   length: (
     min: number,
     max: number
-  ): ((value: unknown) => ValidationResult) => {
+  ): ((value: unknown) => PatternValidationResult) => {
     return (value: unknown) => {
       const str = String(value);
       if (str.length < min || str.length > max) {
@@ -173,7 +173,7 @@ export const Validators = {
   /**
    * Pattern validator
    */
-  pattern: (regex: RegExp, message?: string): ((value: unknown) => ValidationResult) => {
+  pattern: (regex: RegExp, message?: string): ((value: unknown) => PatternValidationResult) => {
     return (value: unknown) => {
       if (!regex.test(String(value))) {
         return {
@@ -192,7 +192,7 @@ export const Validators = {
   custom: (
     validator: (value: unknown) => Promise<boolean> | boolean,
     errorMessage: string
-  ): ((value: unknown) => Promise<ValidationResult>) => {
+  ): ((value: unknown) => Promise<PatternValidationResult>) => {
     return async (value: unknown) => {
       const isValid = await validator(value);
       if (!isValid) {
@@ -210,8 +210,8 @@ export const Validators = {
    * Combines multiple validators
    */
   combine: (
-    ...validators: Array<(value: unknown) => ValidationResult | Promise<ValidationResult>>
-  ): ((value: unknown) => Promise<ValidationResult>) => {
+    ...validators: Array<(value: unknown) => PatternValidationResult | Promise<PatternValidationResult>>
+  ): ((value: unknown) => Promise<PatternValidationResult>) => {
     return async (value: unknown) => {
       for (const validator of validators) {
         const result = await validator(value);
