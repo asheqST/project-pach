@@ -2,6 +2,7 @@
  * Protocol utility functions for MCP Flow
  */
 
+import type { JSONRPCResponse } from '@modelcontextprotocol/sdk/types.js';
 import {
   JsonRpcRequest,
   JsonRpcResponse,
@@ -28,30 +29,54 @@ export function generateRequestId(): string {
 }
 
 /**
- * Creates a JSON-RPC error object
+ * Creates a JSON-RPC error data object (not the full error response)
  */
 export function createError(
   code: number | FlowErrorCode,
   message: string,
   data?: unknown
-): JsonRpcError {
+) {
   return { code, message, data };
 }
 
 /**
- * Creates a JSON-RPC response
+ * Creates a JSON-RPC response (success or error)
+ * Uses MCP SDK types for proper protocol compatibility
  */
 export function createResponse(
   id: string | number,
   result?: unknown,
-  error?: JsonRpcError
+  error?: { code: number; message: string; data?: unknown }
 ): JsonRpcResponse {
+  if (error) {
+    // Return error response
+    return {
+      jsonrpc: '2.0',
+      id,
+      error,
+    } as JsonRpcResponse;
+  }
+
+  // Return success response with result
   return {
     jsonrpc: '2.0',
     id,
-    result,
-    error,
-  };
+    result: result !== undefined ? result : { _meta: {} },
+  } as JsonRpcResponse;
+}
+
+/**
+ * Type guard to check if a response is an error
+ */
+export function isErrorResponse(response: JsonRpcResponse): response is JsonRpcError {
+  return 'error' in response && response.error !== undefined;
+}
+
+/**
+ * Type guard to check if a response is a success
+ */
+export function isSuccessResponse(response: JsonRpcResponse): response is JSONRPCResponse {
+  return 'result' in response && !('error' in response);
 }
 
 /**

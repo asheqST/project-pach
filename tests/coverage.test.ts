@@ -1231,8 +1231,8 @@ describe('Coverage Tests - Edge Cases', () => {
 
     const response = await server.handleRequest(request);
 
-    expect(response.error).toBeDefined();
-    expect(response.error?.code).toBe(-32050); // SESSION_NOT_FOUND
+    expect((response as any).error).toBeDefined();
+    expect((response as any).error?.code).toBe(-32050); // SESSION_NOT_FOUND
   });
 
   it('should handle progress updates', async () => {
@@ -1272,8 +1272,8 @@ describe('Coverage Tests - Edge Cases', () => {
 
     const response = await server.handleRequest(request);
 
-    expect(response.result).toBeDefined();
-    const result = response.result as any;
+    expect((response as any).result).toBeDefined();
+    const result = (response as any).result as any;
     expect(result.protocolVersion).toBe('2024-11-05');
     expect(result.serverInfo.name).toBe('mcp-flow-server');
     expect(result.capabilities.experimental.interactive).toBeDefined();
@@ -1397,7 +1397,7 @@ describe('Coverage Tests - Edge Cases', () => {
       },
     });
 
-    expect(response.error).toBeDefined();
+    expect((response as any).error).toBeDefined();
   });
 
   it('should handle getState with non-existent session', async () => {
@@ -1408,8 +1408,8 @@ describe('Coverage Tests - Edge Cases', () => {
       params: { sessionId: 'does-not-exist' },
     });
 
-    expect(response.error).toBeDefined();
-    expect(response.error?.code).toBe(-32050);
+    expect((response as any).error).toBeDefined();
+    expect((response as any).error?.code).toBe(-32050);
   });
 
   it('should handle cancel with non-existent session', async () => {
@@ -1420,8 +1420,8 @@ describe('Coverage Tests - Edge Cases', () => {
       params: { sessionId: 'does-not-exist', reason: 'test' },
     });
 
-    expect(response.error).toBeDefined();
-    expect(response.error?.code).toBe(-32050);
+    expect((response as any).error).toBeDefined();
+    expect((response as any).error?.code).toBe(-32050);
   });
 
   it('should handle initialization request with client info', async () => {
@@ -1436,8 +1436,8 @@ describe('Coverage Tests - Edge Cases', () => {
       },
     });
 
-    expect(response.result).toBeDefined();
-    const result = response.result as any;
+    expect((response as any).result).toBeDefined();
+    const result = (response as any).result as any;
     expect(result.protocolVersion).toBe('2024-11-05');
   });
 

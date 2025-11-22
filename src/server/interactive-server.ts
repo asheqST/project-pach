@@ -1,6 +1,9 @@
 /**
  * Interactive MCP Server
  * Reference implementation of MCP Flow server
+ *
+ * This server uses MCP SDK protocol types and can integrate with MCP SDK transports
+ * (stdio, SSE) instead of reimplementing the protocol from scratch.
  */
 
 import EventEmitter from 'eventemitter3';
@@ -56,6 +59,8 @@ export interface ServerEvents {
 
 /**
  * Interactive MCP Server implementation
+ * Uses MCP SDK protocol types instead of reimplementing them
+ * Can integrate with MCP SDK transports (stdio, SSE)
  */
 export class InteractiveServer extends EventEmitter<ServerEvents> {
   private sessionManager: SessionManager;
@@ -377,7 +382,7 @@ export class InteractiveServer extends EventEmitter<ServerEvents> {
   }
 
   /**
-   * Sets up internal event handlers
+   * Sets up internal event handlers for session lifecycle
    */
   private setupEventHandlers(): void {
     this.sessionManager.on('expired', (sessionId) => {
@@ -387,7 +392,7 @@ export class InteractiveServer extends EventEmitter<ServerEvents> {
     this.sessionManager.on('cancelled', (sessionId) => {
       const resolver = this.pendingPrompts.get(sessionId);
       if (resolver) {
-        // Reject with cancellation
+        // Clean up pending prompt
         this.pendingPrompts.delete(sessionId);
       }
     });
@@ -395,6 +400,7 @@ export class InteractiveServer extends EventEmitter<ServerEvents> {
 
   /**
    * Cleans up server resources
+   * Call this before shutting down the server
    */
   destroy(): void {
     this.sessionManager.destroy();

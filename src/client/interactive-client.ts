@@ -13,7 +13,7 @@ import {
   InteractionResponse,
   InteractiveCapabilities,
 } from '../protocol/types';
-import { RequestBuilders } from '../protocol/utils';
+import { RequestBuilders, isErrorResponse } from '../protocol/utils';
 
 export interface ClientConfig {
   timeout?: number;
@@ -66,7 +66,7 @@ export class InteractiveClient extends EventEmitter<ClientEvents> {
 
     const response = await this.transport.send(request);
 
-    if (response.error) {
+    if (isErrorResponse(response)) {
       throw new Error(response.error.message);
     }
 
@@ -98,7 +98,7 @@ export class InteractiveClient extends EventEmitter<ClientEvents> {
     const request = RequestBuilders.start(toolName, initialParams, context, timeout);
     const response = await this.transport.send(request);
 
-    if (response.error) {
+    if (isErrorResponse(response)) {
       throw new Error(response.error.message);
     }
 
@@ -123,7 +123,7 @@ export class InteractiveClient extends EventEmitter<ClientEvents> {
     const request = RequestBuilders.respond(sessionId, response);
     const rpcResponse = await this.transport.send(request);
 
-    if (rpcResponse.error) {
+    if (isErrorResponse(rpcResponse)) {
       throw new Error(rpcResponse.error.message);
     }
 
@@ -145,7 +145,7 @@ export class InteractiveClient extends EventEmitter<ClientEvents> {
     const request = RequestBuilders.cancel(sessionId, reason);
     const response = await this.transport.send(request);
 
-    if (response.error) {
+    if (isErrorResponse(response)) {
       throw new Error(response.error.message);
     }
 
@@ -159,11 +159,13 @@ export class InteractiveClient extends EventEmitter<ClientEvents> {
     const request = RequestBuilders.getState(sessionId);
     const response = await this.transport.send(request);
 
-    if (response.error) {
+    if (isErrorResponse(response)) {
       throw new Error(response.error.message);
     }
 
-    return response.result as SessionState;
+    // The result contains sessionState as per our API
+    const result = response.result as any;
+    return result.sessionState || result;
   }
 
   /**
