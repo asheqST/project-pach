@@ -39,7 +39,33 @@ MCP Flow addresses these needs by extending MCP with interaction primitives.
 
 ## Protocol Messages
 
-All MCP Flow messages follow JSON-RPC 2.0 specification.
+All MCP Flow messages follow JSON-RPC 2.0 specification and use types from the official `@modelcontextprotocol/sdk`.
+
+### Implementation Note
+
+MCP Flow **extends** the MCP SDK instead of reimplementing the protocol:
+
+```typescript
+// Protocol types extend MCP SDK types
+import type {
+  JSONRPCRequest,
+  JSONRPCResponse,
+  JSONRPCError,
+  Request
+} from '@modelcontextprotocol/sdk/types.js';
+
+// Interactive requests extend the SDK's Request type
+export interface InteractionStartRequest extends Request {
+  method: 'interaction.start';
+  params: { ... };
+}
+```
+
+This approach ensures:
+- Protocol compliance with official MCP specification
+- No duplication of JSON-RPC implementation
+- Compatibility with MCP SDK transports (stdio, SSE)
+- Future-proof updates as SDK evolves
 
 ### Base Types
 

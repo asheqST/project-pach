@@ -25,6 +25,8 @@ MCP Flow extends the Model Context Protocol to enable tools that can have dialog
 npm install mcp-flow
 ```
 
+MCP Flow is built on top of the official `@modelcontextprotocol/sdk`, providing interactive capabilities as an extension to the base MCP protocol.
+
 ### Server Setup
 
 ```typescript
@@ -223,11 +225,23 @@ Servers declare support for interactive mode:
 
 ## Architecture
 
+### MCP SDK Integration
+
+MCP Flow **extends** the official `@modelcontextprotocol/sdk` instead of reimplementing the protocol:
+
+- ✅ **Uses MCP SDK Types**: Imports `JSONRPCRequest`, `JSONRPCResponse`, `JSONRPCError` from the official SDK
+- ✅ **No Protocol Duplication**: Leverages SDK's JSON-RPC 2.0 implementation
+- ✅ **Transport Compatible**: Can integrate with MCP SDK transports (stdio, SSE)
+- ✅ **Type-Safe Extensions**: Interactive protocol types extend SDK's `Request` type
+- ✅ **Future-Proof**: Automatically stays in sync with MCP SDK updates
+
 ### Three-Layer Design
 
-1. **Protocol Layer**: Extended JSON-RPC schema for interactive messages
+1. **Protocol Layer**: Interactive message types extending MCP SDK protocol types
 2. **Session Layer**: State persistence and lifecycle management
 3. **Flow Control Layer**: Branching logic, validation, and progress tracking
+
+For detailed architecture information, see [ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ### Stateful vs Stateless
 
