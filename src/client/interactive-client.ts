@@ -50,12 +50,22 @@ export class InteractiveClient extends EventEmitter<ClientEvents> {
   }
 
   /**
-   * Negotiates capabilities with server
+   * Negotiates capabilities with server using MCP initialize
    */
   async negotiate(): Promise<InteractiveCapabilities> {
-    const request = RequestBuilders.getState('capabilities' as SessionId);
-    request.method = 'capabilities';
-    delete request.params;
+    const request = {
+      jsonrpc: '2.0' as const,
+      id: 'init-' + Date.now(),
+      method: 'initialize',
+      params: {
+        protocolVersion: '2024-11-05',
+        capabilities: {},
+        clientInfo: {
+          name: 'mcp-flow-client',
+          version: '0.1.0',
+        },
+      },
+    };
 
     const response = await this.transport.send(request);
 
@@ -63,7 +73,19 @@ export class InteractiveClient extends EventEmitter<ClientEvents> {
       throw new Error(response.error.message);
     }
 
-    this.capabilities = response.result as InteractiveCapabilities;
+    const result = response.result as {
+      capabilities?: {
+        experimental?: {
+          interactive?: InteractiveCapabilities;
+        };
+      };
+    };
+
+    // Extract interactive capabilities from experimental section
+    this.capabilities =
+      result.capabilities?.experimental?.interactive ||
+      ({ interactive: false, version: '0.1.0', features: {} } as InteractiveCapabilities);
+
     return this.capabilities;
   }
 

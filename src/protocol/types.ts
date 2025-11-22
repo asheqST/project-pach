@@ -283,15 +283,17 @@ export interface InteractiveCapabilities {
 
 /**
  * Error codes specific to MCP Flow
+ * Using range -32050 to -32099 for application-specific errors
+ * (avoiding conflict with JSON-RPC 2.0 reserved range -32768 to -32000)
  */
 export enum FlowErrorCode {
-  SESSION_NOT_FOUND = -32001,
-  SESSION_EXPIRED = -32002,
-  INVALID_STATE_TRANSITION = -32003,
-  VALIDATION_FAILED = -32004,
-  TIMEOUT = -32005,
-  ALREADY_CANCELLED = -32006,
-  NOT_INTERACTIVE = -32007,
+  SESSION_NOT_FOUND = -32050,
+  SESSION_EXPIRED = -32051,
+  INVALID_STATE_TRANSITION = -32052,
+  VALIDATION_FAILED = -32053,
+  TIMEOUT = -32054,
+  ALREADY_CANCELLED = -32055,
+  NOT_INTERACTIVE = -32056,
 }
 
 /**

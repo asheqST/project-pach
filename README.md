@@ -1,5 +1,7 @@
 # MCP Flow: Interactive Protocol Extension
 
+> **📋 Note:** MCP Flow is an **experimental extension** to the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/). It adds interactive, multi-turn capabilities while maintaining full backward compatibility with standard MCP servers and clients. All interactive features are exposed under the `experimental.interactive` capability namespace.
+
 Transform MCP from single request-response tool calls into conversational, multi-turn interactions with state preservation and flow control.
 
 ## Vision
@@ -298,6 +300,46 @@ class InteractiveClient {
   ): Promise<unknown>
 }
 ```
+
+## Protocol Compliance
+
+### MCP Compatibility
+
+MCP Flow is built on top of the [Model Context Protocol (2024-11-05)](https://modelcontextprotocol.io/specification/2024-11-05/):
+
+- ✅ **JSON-RPC 2.0 Compliant:** All messages follow JSON-RPC 2.0 specification
+- ✅ **Standard MCP Support:** Compatible with standard MCP `initialize`, `tools/list`, `tools/call`, etc.
+- ✅ **Extension Model:** Interactive features exposed via `experimental.interactive` capabilities
+- ✅ **Non-Breaking:** Existing MCP tools work unchanged
+- ✅ **Proper Error Codes:** Uses -32050 to -32099 range for custom errors (avoiding JSON-RPC reserved range)
+
+### Capability Negotiation
+
+```typescript
+// Server responds to MCP initialize
+{
+  "protocolVersion": "2024-11-05",
+  "serverInfo": {
+    "name": "mcp-flow-server",
+    "version": "0.1.0"
+  },
+  "capabilities": {
+    "experimental": {
+      "interactive": {
+        "interactive": true,
+        "version": "0.1.0",
+        "features": {
+          "statefulSessions": true,
+          "progressTracking": true,
+          "validation": true
+        }
+      }
+    }
+  }
+}
+```
+
+For complete compliance details, see [VALIDATION.md](docs/VALIDATION.md).
 
 ## Testing
 

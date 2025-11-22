@@ -133,6 +133,9 @@ export class InteractiveServer extends EventEmitter<ServerEvents> {
     const { method, params, id } = request;
 
     switch (method) {
+      case 'initialize':
+        return this.handleInitialize(params, id ?? 0);
+
       case 'interaction.start':
         return this.handleStart(params, id ?? 0);
 
@@ -146,7 +149,8 @@ export class InteractiveServer extends EventEmitter<ServerEvents> {
         return this.handleGetState(params, id ?? 0);
 
       case 'capabilities':
-        return createResponse(id ?? 0, this.capabilities);
+        // Legacy support - redirects to initialize
+        return this.handleInitialize(params, id ?? 0);
 
       default:
         return createResponse(id ?? 0, undefined, Errors.invalidMethod(method));
@@ -281,6 +285,34 @@ export class InteractiveServer extends EventEmitter<ServerEvents> {
     }
 
     return createResponse(id, session);
+  }
+
+  /**
+   * Handles initialize request (MCP standard)
+   * Returns server information and capabilities
+   */
+  private handleInitialize(
+    params: Record<string, unknown> = {},
+    id: string | number
+  ): JsonRpcResponse {
+    const protocolVersion = '2024-11-05';
+    const serverInfo = {
+      name: 'mcp-flow-server',
+      version: '0.1.0',
+    };
+
+    return createResponse(id, {
+      protocolVersion,
+      serverInfo,
+      capabilities: {
+        // Standard MCP capabilities (if any)
+        // For now, we're only adding experimental interactive features
+        experimental: {
+          // MCP Flow interactive capabilities as experimental extension
+          interactive: this.capabilities,
+        },
+      },
+    });
   }
 
   /**
