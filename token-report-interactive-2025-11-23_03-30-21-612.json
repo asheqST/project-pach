@@ -1,0 +1,69 @@
+{
+  "mode": "interactive",
+  "timestamp": "2025-11-23T03:30:21.607Z",
+  "model": "x-ai/grok-4.1-fast:free",
+  "sessionDuration": 29031,
+  "tokenSummary": {
+    "totalCalls": 2,
+    "totalPromptTokens": 874,
+    "totalCompletionTokens": 559,
+    "totalTokens": 1433,
+    "averagePromptTokens": 437,
+    "averageCompletionTokens": 279.5,
+    "averageTotalTokens": 716.5,
+    "peakContextSize": 468,
+    "toolCallsCount": 1,
+    "callBreakdown": [
+      {
+        "callNumber": 1,
+        "promptTokens": 406,
+        "completionTokens": 345,
+        "totalTokens": 751,
+        "timestamp": 1763868601101,
+        "hasToolCalls": true
+      },
+      {
+        "callNumber": 2,
+        "promptTokens": 468,
+        "completionTokens": 214,
+        "totalTokens": 682,
+        "timestamp": 1763868618479,
+        "hasToolCalls": false
+      }
+    ]
+  },
+  "conversation": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant with access to interactive tools. When you use a tool, it may ask you follow-up questions. Be natural and conversational in your responses."
+    },
+    {
+      "role": "user",
+      "content": "book a travel"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "tool_calls": [
+        {
+          "id": "call_29331004",
+          "index": 0,
+          "type": "function",
+          "function": {
+            "name": "book-travel",
+            "arguments": "{}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "{\"success\":true,\"booking\":{\"destination\":\"Paris\",\"dates\":\"June 16-27,2026\",\"travelers\":3,\"confirmationId\":\"BK-1763868614858\"}}"
+    },
+    {
+      "role": "assistant",
+      "content": "Great! I've successfully booked your travel for you:\n\n- **Destination**: Paris\n- **Dates**: June 16-27, 2026\n- **Travelers**: 3\n- **Confirmation ID**: BK-1763868614858\n\nIf you need to make any changes or add more details (like flights, hotels, or activities), just let me know! 😊"
+    }
+  ],
+  "conversationTurns": 1
+}
