@@ -141,6 +141,12 @@ export class InteractiveServer extends EventEmitter<ServerEvents> {
       case 'initialize':
         return this.handleInitialize(params, id ?? 0);
 
+      case 'tools/list':
+        return this.handleToolsList(params, id ?? 0);
+
+      case 'tools/call':
+        return this.handleToolsCall(params, id ?? 0);
+
       case 'interaction.start':
         return this.handleStart(params, id ?? 0);
 
@@ -310,14 +316,91 @@ export class InteractiveServer extends EventEmitter<ServerEvents> {
       protocolVersion,
       serverInfo,
       capabilities: {
-        // Standard MCP capabilities (if any)
-        // For now, we're only adding experimental interactive features
+        // Standard MCP capabilities
+        tools: {},
+        // Experimental interactive features
         experimental: {
           // MCP Flow interactive capabilities as experimental extension
           interactive: this.capabilities,
         },
       },
     });
+  }
+
+  /**
+   * Handles tools/list request (MCP standard)
+   * Returns list of available tools
+   */
+  private handleToolsList(
+    _params: Record<string, unknown> = {},
+    id: string | number
+  ): JsonRpcResponse {
+    const tools = Array.from(this.tools.values()).map(tool => ({
+      name: tool.name,
+      description: tool.description,
+      inputSchema: {
+        type: 'object',
+        properties: {},
+        required: [],
+      },
+    }));
+
+    return createResponse(id, { tools });
+  }
+
+  /**
+   * Handles tools/call request (MCP standard)
+   * Executes a tool (non-interactive, returns final result)
+   */
+  private async handleToolsCall(
+    params: Record<string, unknown> = {},
+    id: string | number
+  ): Promise<JsonRpcResponse> {
+    const { name, arguments: args } = params as {
+      name: string;
+      arguments?: Record<string, unknown>;
+    };
+
+    const tool = this.tools.get(name);
+    if (!tool) {
+      return createResponse(id, undefined, Errors.invalidParams(`Tool not found: ${name}`));
+    }
+
+    const sessionId = generateSessionId();
+    this.sessionManager.createSession(sessionId, name);
+
+    try {
+      // For tools/call, we execute synchronously without interactive prompts
+      // This is a simplified execution context for non-interactive use
+      const result = await tool.execute({
+        sessionId,
+        initialParams: args,
+        prompt: async () => {
+          throw new Error('Interactive prompts not supported in tools/call');
+        },
+        setData: (key: string, value: unknown) => {
+          this.sessionManager.setData(sessionId, key, value);
+        },
+        getData: (key?: string) => {
+          return this.sessionManager.getData(sessionId, key);
+        },
+        updateProgress: () => {},
+      });
+
+      this.sessionManager.completeSession(sessionId, result);
+
+      return createResponse(id, {
+        content: [
+          {
+            type: 'text',
+            text: typeof result === 'string' ? result : JSON.stringify(result, null, 2),
+          },
+        ],
+      });
+    } catch (error) {
+      this.sessionManager.errorSession(sessionId, error as Error);
+      return createResponse(id, undefined, Errors.internalError((error as Error).message));
+    }
   }
 
   /**

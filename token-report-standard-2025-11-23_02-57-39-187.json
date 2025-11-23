@@ -1,0 +1,192 @@
+{
+  "mode": "standard",
+  "timestamp": "2025-11-23T02:57:39.165Z",
+  "model": "qwen2.5",
+  "sessionDuration": 66330,
+  "tokenSummary": {
+    "totalCalls": 8,
+    "totalPromptTokens": 5962,
+    "totalCompletionTokens": 310,
+    "totalTokens": 6272,
+    "averagePromptTokens": 745.25,
+    "averageCompletionTokens": 38.75,
+    "averageTotalTokens": 784,
+    "peakContextSize": 1071,
+    "toolCallsCount": 4,
+    "callBreakdown": [
+      {
+        "callNumber": 1,
+        "promptTokens": 500,
+        "completionTokens": 26,
+        "totalTokens": 526,
+        "timestamp": 1763866603969,
+        "hasToolCalls": false
+      },
+      {
+        "callNumber": 2,
+        "promptTokens": 536,
+        "completionTokens": 21,
+        "totalTokens": 557,
+        "timestamp": 1763866612428,
+        "hasToolCalls": true
+      },
+      {
+        "callNumber": 3,
+        "promptTokens": 615,
+        "completionTokens": 40,
+        "totalTokens": 655,
+        "timestamp": 1763866614400,
+        "hasToolCalls": false
+      },
+      {
+        "callNumber": 4,
+        "promptTokens": 676,
+        "completionTokens": 31,
+        "totalTokens": 707,
+        "timestamp": 1763866632551,
+        "hasToolCalls": true
+      },
+      {
+        "callNumber": 5,
+        "promptTokens": 784,
+        "completionTokens": 50,
+        "totalTokens": 834,
+        "timestamp": 1763866635029,
+        "hasToolCalls": false
+      },
+      {
+        "callNumber": 6,
+        "promptTokens": 844,
+        "completionTokens": 22,
+        "totalTokens": 866,
+        "timestamp": 1763866643343,
+        "hasToolCalls": true
+      },
+      {
+        "callNumber": 7,
+        "promptTokens": 936,
+        "completionTokens": 57,
+        "totalTokens": 993,
+        "timestamp": 1763866646186,
+        "hasToolCalls": true
+      },
+      {
+        "callNumber": 8,
+        "promptTokens": 1071,
+        "completionTokens": 63,
+        "totalTokens": 1134,
+        "timestamp": 1763866649279,
+        "hasToolCalls": false
+      }
+    ]
+  },
+  "conversation": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant with access to travel booking tools. You can help users book trips by calling separate tools for each piece of information. Use set-destination, set-dates, and set-travelers tools as the user provides information, then call confirm-booking when all information is collected. Be conversational and guide the user through the booking process."
+    },
+    {
+      "role": "user",
+      "content": "book a trip"
+    },
+    {
+      "role": "assistant",
+      "content": "Great! Let's get started on booking your trip. First, could you please tell me where you'd like to go?"
+    },
+    {
+      "role": "user",
+      "content": "Paris"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "tool_calls": [
+        {
+          "function": {
+            "name": "set-destination",
+            "arguments": {
+              "destination": "Paris"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "{\"success\":true,\"message\":\"Destination set to Paris\",\"currentBooking\":{\"destination\":\"Paris\"},\"nextSteps\":[\"Set travel dates using set-dates tool\",\"Set number of travelers using set-travelers tool\"]}"
+    },
+    {
+      "role": "assistant",
+      "content": "I've set your destination to Paris. Next, could you please tell me the dates you're planning to travel? For example, \"June 1-5, 2024\"."
+    },
+    {
+      "role": "user",
+      "content": "June 1-30, 2026"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "tool_calls": [
+        {
+          "function": {
+            "name": "set-dates",
+            "arguments": {
+              "dates": "June 1-30, 2026"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "{\"success\":true,\"message\":\"Travel dates set to June 1-30, 2026\",\"currentBooking\":{\"destination\":\"Paris\",\"dates\":\"June 1-30, 2026\"},\"nextSteps\":[\"Set number of travelers using set-travelers tool\"]}"
+    },
+    {
+      "role": "assistant",
+      "content": "I've updated the travel dates to June 1-30, 2026. Now, could you please let me know how many travelers will be joining this trip? Please enter a number between 1 and 10."
+    },
+    {
+      "role": "user",
+      "content": "3"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "tool_calls": [
+        {
+          "function": {
+            "name": "set-travelers",
+            "arguments": {
+              "travelers": 3
+            }
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "{\"success\":true,\"message\":\"Number of travelers set to 3\",\"currentBooking\":{\"destination\":\"Paris\",\"dates\":\"June 1-30, 2026\",\"travelers\":3},\"nextSteps\":[\"Confirm booking using confirm-booking tool\"]}"
+    },
+    {
+      "role": "assistant",
+      "content": "I've confirmed that there will be 3 travelers joining the trip. \n\nNow, let's finalize your booking. I'll go ahead and confirm everything for you.\n\nProceeding to confirm the booking...\n",
+      "tool_calls": [
+        {
+          "function": {
+            "name": "confirm-booking",
+            "arguments": {}
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "{\"success\":true,\"booking\":{\"destination\":\"Paris\",\"dates\":\"June 1-30, 2026\",\"travelers\":3,\"confirmationId\":\"BK-1763866646187\"},\"message\":\"Successfully booked trip to Paris for 3 traveler(s) on June 1-30, 2026\"}"
+    },
+    {
+      "role": "assistant",
+      "content": "Your trip to Paris for 3 travelers from June 1-30, 2026, has been successfully booked! You can use the confirmation ID BK-1763866646187 for any future reference.\n\nIs there anything else you need help with?"
+    }
+  ],
+  "conversationTurns": 4
+}

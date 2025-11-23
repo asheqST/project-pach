@@ -38,7 +38,8 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
-    "eventemitter3": "^5.0.1"
+    "eventemitter3": "^5.0.1",
+    "ollama": "^0.6.3"
   },
   "engines": {
     "node": ">=18.0.0"

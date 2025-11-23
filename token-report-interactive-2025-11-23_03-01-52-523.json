@@ -1,0 +1,66 @@
+{
+  "mode": "interactive",
+  "timestamp": "2025-11-23T03:01:52.521Z",
+  "model": "qwen2.5",
+  "sessionDuration": 56582,
+  "tokenSummary": {
+    "totalCalls": 2,
+    "totalPromptTokens": 493,
+    "totalCompletionTokens": 88,
+    "totalTokens": 581,
+    "averagePromptTokens": 246.5,
+    "averageCompletionTokens": 44,
+    "averageTotalTokens": 290.5,
+    "peakContextSize": 289,
+    "toolCallsCount": 1,
+    "callBreakdown": [
+      {
+        "callNumber": 1,
+        "promptTokens": 204,
+        "completionTokens": 17,
+        "totalTokens": 221,
+        "timestamp": 1763866866734,
+        "hasToolCalls": true
+      },
+      {
+        "callNumber": 2,
+        "promptTokens": 289,
+        "completionTokens": 71,
+        "totalTokens": 360,
+        "timestamp": 1763866910744,
+        "hasToolCalls": false
+      }
+    ]
+  },
+  "conversation": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant with access to interactive tools. When you use a tool, it may ask you follow-up questions. Be natural and conversational in your responses."
+    },
+    {
+      "role": "user",
+      "content": "book a trip"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "tool_calls": [
+        {
+          "function": {
+            "name": "book-travel",
+            "arguments": {}
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "{\"success\":true,\"booking\":{\"destination\":\"Paris\",\"dates\":\"June 15-22, 2026\",\"travelers\":3,\"confirmationId\":\"BK-1763866902083\"}}"
+    },
+    {
+      "role": "assistant",
+      "content": "Your trip to Paris has been booked! The booking details are as follows:\n\n- Dates: June 15-22, 2026\n- Number of travelers: 3\n\nPlease keep your confirmation ID (BK-1763866902083) handy for future reference. Safe travels!"
+    }
+  ],
+  "conversationTurns": 1
+}
