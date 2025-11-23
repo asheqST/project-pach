@@ -26,6 +26,7 @@ npm install mcp-flow
 ```
 
 MCP Flow is built on top of the official `@modelcontextprotocol/sdk`, providing interactive capabilities as an extension to the base MCP protocol.
+> **📦 Local Development:** If you want to use MCPFlow locally before it's published to npm, see the [Local Setup Guide](docs/LOCAL_SETUP.md) for detailed instructions on building and linking the package.
 
 ### Server Setup
 
