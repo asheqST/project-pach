@@ -10,6 +10,12 @@ import {
 } from './types';
 
 /**
+ * Maximum allowed size for response payloads (100KB)
+ * Prevents DoS attacks via large input payloads
+ */
+export const MAX_RESPONSE_SIZE = 100 * 1024; // 100KB
+
+/**
  * Validates user response against prompt requirements
  */
 export function validateResponse(
@@ -18,6 +24,22 @@ export function validateResponse(
 ): ValidationResult {
   const { value } = response;
   const { validation, type } = prompt;
+
+  // Validate overall response size to prevent DoS
+  try {
+    const responseSize = JSON.stringify(response).length;
+    if (responseSize > MAX_RESPONSE_SIZE) {
+      return {
+        valid: false,
+        error: `Response size (${responseSize} bytes) exceeds maximum allowed size (${MAX_RESPONSE_SIZE} bytes)`,
+      };
+    }
+  } catch (e) {
+    return {
+      valid: false,
+      error: 'Invalid response format',
+    };
+  }
 
   // Required field check
   if (validation?.required && (value === null || value === undefined || value === '')) {

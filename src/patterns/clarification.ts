@@ -23,6 +23,10 @@ export interface ClarificationConfig<T = unknown> {
 
 /**
  * Clarification pattern for ambiguity resolution
+ * @template T - The type of data associated with options
+ *
+ * Note: When allowCustom is true, return type is T | string
+ *       When allowCustom is false or data is undefined, returns string
  */
 export class Clarification<T = unknown> {
   private config: ClarificationConfig<T>;
@@ -33,6 +37,7 @@ export class Clarification<T = unknown> {
 
   /**
    * Executes clarification flow
+   * Returns T if option has data, otherwise returns string (value or custom input)
    */
   async execute(executionContext: ToolExecutionContext): Promise<T | string> {
     const choices = this.config.options.map((opt) => ({
@@ -75,7 +80,8 @@ export class Clarification<T = unknown> {
       };
 
       const customResponse = await executionContext.prompt(customPrompt);
-      return String(customResponse.value);
+      // Custom input always returns string
+      return String(customResponse.value) as T | string;
     }
 
     // Return selected option data
@@ -83,11 +89,12 @@ export class Clarification<T = unknown> {
       (opt) => opt.value === selectedValue
     );
 
+    // Return typed data if available, otherwise return value as string
     if (selectedOption?.data !== undefined) {
       return selectedOption.data;
     }
 
-    return selectedValue;
+    return selectedValue as T | string;
   }
 }
 

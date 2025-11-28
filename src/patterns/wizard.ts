@@ -66,7 +66,7 @@ export class Wizard {
               typeof validationResult === 'string' ? validationResult : 'Invalid input'
             }`,
           };
-          executionContext.prompt(errorPrompt);
+          await executionContext.prompt(errorPrompt);
           continue;
         }
       }

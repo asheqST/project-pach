@@ -129,8 +129,25 @@ export class RedisAdapter implements ISessionStorage {
 
   async keys(): Promise<SessionId[]> {
     const pattern = `${this.config.keyPrefix}*`;
-    const keys = await this.client.keys(pattern);
-    return keys.map(key => this.stripKey(key));
+    const allKeys: string[] = [];
+
+    // Use SCAN instead of KEYS for better performance
+    let cursor = '0';
+
+    do {
+      const [newCursor, keys] = await this.client.scan(
+        cursor,
+        'MATCH',
+        pattern,
+        'COUNT',
+        100
+      );
+
+      allKeys.push(...keys);
+      cursor = newCursor;
+    } while (cursor !== '0');
+
+    return allKeys.map(key => this.stripKey(key));
   }
 
   async count(): Promise<number> {

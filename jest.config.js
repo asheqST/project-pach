@@ -10,14 +10,14 @@ module.exports = {
     '!src/**/index.ts',
     '!src/examples/**/*.ts'
   ],
-  // Coverage thresholds adjusted for integration test focus
-  // Integration tests verify real behavior end-to-end rather than unit test coverage
+  // Coverage thresholds set to production standards
+  // All code should have comprehensive test coverage
   coverageThreshold: {
     global: {
-      branches: 40,
-      functions: 45,
-      lines: 50,
-      statements: 50
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80
     }
   },
   // Transform ES modules from node_modules

@@ -3,6 +3,7 @@
  * Enables interactive flows without server-side state storage
  */
 
+import { createHmac } from 'crypto';
 import {
   SessionId,
   SessionState,
@@ -98,22 +99,17 @@ export class StatelessSessionHandler {
   }
 
   /**
-   * Signs session state (simple implementation)
+   * Signs session state using HMAC-SHA256
    */
   private sign(state: SessionState): string | undefined {
     if (!this.secret) {
       return undefined;
     }
 
-    // Simple hash for demonstration
-    // In production, use proper HMAC (crypto.createHmac)
     const data = JSON.stringify(state);
-    let hash = 0;
-    for (let i = 0; i < data.length; i++) {
-      hash = ((hash << 5) - hash) + data.charCodeAt(i);
-      hash = hash & hash;
-    }
-    return hash.toString(36);
+    const hmac = createHmac('sha256', this.secret);
+    hmac.update(data);
+    return hmac.digest('hex');
   }
 
   /**
