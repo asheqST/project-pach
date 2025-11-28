@@ -22,9 +22,6 @@ export * from './client';
 // Interaction patterns
 export * from './patterns';
 
-// Example tools (optional, for demonstration)
-export * from './examples';
-
 /**
  * Version information
  */

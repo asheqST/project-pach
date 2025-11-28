@@ -19,5 +19,13 @@ module.exports = {
       lines: 50,
       statements: 50
     }
+  },
+  // Transform ES modules from node_modules
+  transformIgnorePatterns: [
+    'node_modules/(?!nanoid)'
+  ],
+  // Mock nanoid to avoid ES module issues
+  moduleNameMapper: {
+    '^nanoid$': '<rootDir>/tests/__mocks__/nanoid.ts'
   }
 };

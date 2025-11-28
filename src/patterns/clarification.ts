@@ -113,7 +113,7 @@ export class HierarchicalClarification {
       selections.push(selection);
 
       // Store selection in context
-      executionContext.setData(`level_${selections.length}`, selection);
+      await executionContext.setData(`level_${selections.length}`, selection);
     }
 
     return selections;
@@ -147,7 +147,7 @@ export class SmartClarification<T = unknown> {
 
     // Enhance options based on context
     if (this.contextAnalyzer) {
-      const context = executionContext.getData() as Record<string, unknown>;
+      const context = (await executionContext.getData()) as Record<string, unknown>;
       const contextOptions = this.contextAnalyzer(context);
       options = [...contextOptions, ...options];
     }

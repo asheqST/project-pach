@@ -9,9 +9,9 @@
  */
 
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { InteractiveServer, connectTransport } from '../server/index.js';
-import type { ToolExecutionContext } from '../server/interactive-server.js';
-import { PromptType } from '../protocol/types.js';
+import { InteractiveServer, connectTransport } from '../../src/server/index.js';
+import type { ToolExecutionContext } from '../../src/server/interactive-server.js';
+import { PromptType } from '../../src/protocol/types.js';
 
 async function main() {
   // Create the server

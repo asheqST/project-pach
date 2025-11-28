@@ -39,8 +39,12 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
     "eventemitter3": "^5.0.1",
+    "ioredis": "^5.8.2",
+    "nanoid": "^5.1.6",
+    "node-cache": "^5.1.2",
     "ollama": "^0.6.3",
-    "openai": "^6.9.1"
+    "openai": "^6.9.1",
+    "xstate": "^5.24.0"
   },
   "engines": {
     "node": ">=18.0.0"

@@ -224,7 +224,7 @@ describe('MCP Flow Integration Tests', () => {
             validation: { required: true, min: 2 },
           });
 
-          context.setData('name', name.value);
+          await context.setData('name', name.value);
 
           const email = await context.prompt({
             type: PromptType.TEXT,
@@ -235,7 +235,7 @@ describe('MCP Flow Integration Tests', () => {
             },
           });
 
-          context.setData('email', email.value);
+          await context.setData('email', email.value);
 
           const newsletter = await context.prompt({
             type: PromptType.CONFIRM,
@@ -244,8 +244,8 @@ describe('MCP Flow Integration Tests', () => {
           });
 
           const userData = {
-            name: context.getData('name'),
-            email: context.getData('email'),
+            name: await context.getData('name'),
+            email: await context.getData('email'),
             newsletter: newsletter.value,
           };
 
@@ -287,7 +287,7 @@ describe('MCP Flow Integration Tests', () => {
         name: 'calculator',
         description: 'Multi-step calculator',
         async execute(context) {
-          context.setData('operations', []);
+          await context.setData('operations', []);
 
           const num1 = await context.prompt({
             type: PromptType.NUMBER,
@@ -295,9 +295,9 @@ describe('MCP Flow Integration Tests', () => {
             validation: { required: true },
           });
 
-          const operations = context.getData('operations') as any[];
+          let operations = (await context.getData('operations')) as any[];
           operations.push({ type: 'input', value: num1.value });
-          context.setData('operations', operations);
+          await context.setData('operations', operations);
 
           const num2 = await context.prompt({
             type: PromptType.NUMBER,
@@ -305,14 +305,16 @@ describe('MCP Flow Integration Tests', () => {
             validation: { required: true },
           });
 
+          operations = (await context.getData('operations')) as any[];
           operations.push({ type: 'input', value: num2.value });
 
           const result = (num1.value as number) + (num2.value as number);
           operations.push({ type: 'result', value: result });
+          await context.setData('operations', operations);
 
           return {
             result,
-            operations: context.getData('operations'),
+            operations: await context.getData('operations'),
           };
         },
       };
@@ -442,6 +444,9 @@ describe('MCP Flow Integration Tests', () => {
       server.registerTool(sessionTool);
 
       const sessionId = await client.startInteraction('state_tracker');
+
+      // Wait for tool to reach first prompt
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       // Check initial state
       let state = await client.getState(sessionId);

@@ -1,30 +1,27 @@
 /**
- * Token Comparison Chat - Interactive MCP Flow Mode
+ * Example: Ollama Chat Client with MCP Flow Interactive Server
  *
- * Interactive chat interface based on ollama-chat-client with token tracking.
- * Demonstrates Interactive MCP Flow with real-time token usage monitoring.
+ * This example demonstrates a terminal-based chat interface where:
+ * - User types messages in a chat UI
+ * - Ollama LLM decides when to call MCP Flow tools
+ * - Interactive prompts are handled directly in the terminal
+ * - Results flow back to Ollama for natural language responses
+ *
+ * Prerequisites:
+ * - Ollama installed and running (https://ollama.ai)
+ * - A model with tool support downloaded (e.g., llama3.1, mistral)
  *
  * Usage:
  *   npm run build
- *   node dist/examples/token-comparison-interactive.js [--model MODEL_NAME]
+ *   node dist/examples/ollama-chat-client.js
  */
 
-import { Message, Tool } from 'ollama';
-import { InteractiveClient } from '../client/interactive-client';
-import { StdioTransportAdapter } from '../client/stdio-transport-adapter';
-import { InteractionPrompt } from '../protocol/types';
-import { TokenTracker } from './utils/token-tracker';
+import { Ollama, Tool, Message } from 'ollama';
+import { InteractiveClient } from '../../src/client/interactive-client';
+import { StdioTransportAdapter } from '../../src/client/stdio-transport-adapter';
+import { InteractionPrompt } from '../../src/protocol/types';
 import {
-  SingleModeReportGenerator,
-  SessionReport,
-} from './utils/single-mode-report';
-import {
-  displayTokenUpdate,
-  displayCurrentTokenStats,
-  displaySessionSummary,
-  displayTokenHelp,
-} from './utils/token-display';
-import {
+  displayHeader,
   displayMessage,
   displayToolExecution,
   displayError,
@@ -36,19 +33,18 @@ import {
 import * as path from 'path';
 
 /**
- * Interactive MCP Flow Chat Client with Token Tracking
+ * Main Ollama MCP Chat Client
  */
-class InteractiveMCPChatClient {
-  private tracker: TokenTracker;
+class OllamaMCPChatClient {
+  private ollama: Ollama;
   private mcpClient!: InteractiveClient;
   private transport!: StdioTransportAdapter;
   private conversation: Message[] = [];
   private tools: Tool[] = [];
   private model: string;
-  private sessionStartTime: number = 0;
 
   constructor(model: string = 'qwen2.5') {
-    this.tracker = new TokenTracker();
+    this.ollama = new Ollama({ host: 'http://127.0.0.1:11434' });
     this.model = model;
   }
 
@@ -60,7 +56,7 @@ class InteractiveMCPChatClient {
 
     // Check Ollama connection
     try {
-      await this.tracker.getOllama().list();
+      await this.ollama.list();
       displaySuccess('Connected to Ollama');
     } catch (error) {
       displayError('Failed to connect to Ollama');
@@ -75,7 +71,7 @@ class InteractiveMCPChatClient {
     displayMessage('system', 'Starting MCP Flow server...');
 
     // Start MCP server via stdio
-    const serverPath = path.join(__dirname, '..', '..', 'dist', 'examples', 'stdio-server.js');
+    const serverPath = path.join(__dirname, '..', 'servers', 'stdio-server.js');
     this.transport = new StdioTransportAdapter({
       command: 'node',
       args: [serverPath],
@@ -116,11 +112,6 @@ class InteractiveMCPChatClient {
     });
 
     displaySuccess('Initialization complete!');
-    console.log();
-    displayMessage('system', 'Mode: Interactive MCP Flow (multi-turn prompts)');
-    displayTokenHelp();
-
-    this.sessionStartTime = Date.now();
   }
 
   /**
@@ -160,31 +151,23 @@ class InteractiveMCPChatClient {
    * Run the chat loop
    */
   async chat(): Promise<void> {
-    this.displayHeader();
+    displayHeader();
 
-    while (true) {
+    let running = true;
+    while (running) {
       try {
         // Get user input
         const userInput = await getUserInput(colorize('\nYou: ', 'bright'));
 
         // Handle commands
         if (userInput.toLowerCase() === 'exit' || userInput.toLowerCase() === 'quit') {
-          await this.handleExit();
+          displayMessage('system', 'Goodbye!');
+          running = false;
           break;
         }
 
         if (userInput.toLowerCase() === 'clear') {
-          this.displayHeader();
-          continue;
-        }
-
-        if (userInput.toLowerCase() === '/tokens') {
-          displayCurrentTokenStats(this.tracker.getSummary());
-          continue;
-        }
-
-        if (userInput.toLowerCase() === '/help') {
-          this.displayHelp();
+          displayHeader();
           continue;
         }
 
@@ -213,17 +196,17 @@ class InteractiveMCPChatClient {
     let continueProcessing = true;
 
     while (continueProcessing) {
-      displayMessage('system', 'Thinking...');
+      displayMessage('system', 'GobleGoble...');
 
-      // Call Ollama through TokenTracker
-      const response = await this.tracker.chat({
+      // Call Ollama
+      const response = await this.ollama.chat({
         model: this.model,
         messages: this.conversation,
         tools: this.tools.length > 0 ? this.tools : undefined,
       });
 
-      // Display token usage for this call
-      displayTokenUpdate(this.tracker.getSummary());
+      // Debug: log the response
+      //console.debug('\n[DEBUG] Ollama response:', JSON.stringify(response.message, null, 2));
 
       // Check if there are tool calls
       if (response.message.tool_calls && response.message.tool_calls.length > 0) {
@@ -282,96 +265,13 @@ class InteractiveMCPChatClient {
    * Run an interactive tool via MCP
    */
   private async runInteractiveTool(toolName: string): Promise<unknown> {
-    return await this.mcpClient.runInteractive(toolName, async (prompt: InteractionPrompt) => {
-      // Display prompt and get user input
-      return await promptUser(prompt);
-    });
-  }
-
-  /**
-   * Handle exit and generate report
-   */
-  private async handleExit(): Promise<void> {
-    console.log();
-    const sessionDuration = Date.now() - this.sessionStartTime;
-    const summary = this.tracker.getSummary();
-
-    // Display session summary
-    displaySessionSummary(summary, 'interactive');
-
-    // Generate report
-    displayMessage('system', 'Generating report...');
-    const report: SessionReport = SingleModeReportGenerator.createReport(
-      'interactive',
-      this.model,
-      sessionDuration,
-      summary,
-      this.conversation
+    return await this.mcpClient.runInteractive(
+      toolName,
+      async (prompt: InteractionPrompt) => {
+        // Display prompt and get user input
+        return await promptUser(prompt);
+      }
     );
-
-    // Display terminal summary
-    SingleModeReportGenerator.displayTerminalSummary(report);
-
-    // Save reports
-    await SingleModeReportGenerator.saveReports(report);
-
-    displaySuccess('Session complete! Goodbye!');
-    console.log();
-  }
-
-  /**
-   * Display the header
-   */
-  private displayHeader(): void {
-    console.clear();
-    console.log(colorize('═'.repeat(60), 'cyan'));
-    console.log(colorize('  Token Comparison Chat - Interactive MCP Flow', 'bright'));
-    console.log(colorize('═'.repeat(60), 'cyan'));
-    console.log();
-    console.log(colorize('  Mode: Interactive MCP Flow', 'dim'));
-    console.log(colorize(`  Model: ${this.model}`, 'dim'));
-    console.log();
-    console.log(colorize('  Commands:', 'dim'));
-    console.log(colorize('    /tokens - Show current token usage', 'dim'));
-    console.log(colorize('    /help   - Show help message', 'dim'));
-    console.log(colorize('    clear   - Clear the screen', 'dim'));
-    console.log(colorize('    exit    - End session and generate report', 'dim'));
-    console.log();
-  }
-
-  /**
-   * Display help message
-   */
-  private displayHelp(): void {
-    console.log();
-    console.log(colorize('═'.repeat(60), 'cyan'));
-    console.log(colorize('  HELP - Interactive MCP Flow Mode', 'bright'));
-    console.log(colorize('═'.repeat(60), 'cyan'));
-    console.log();
-    console.log(colorize('  About This Mode:', 'bright'));
-    console.log(colorize('    Interactive MCP Flow uses multi-turn conversations.', 'dim'));
-    console.log(
-      colorize('    Tools will ask you questions to gather required information.', 'dim')
-    );
-    console.log(colorize('    Prompts are handled by the tool itself.', 'dim'));
-    console.log();
-    console.log(colorize('  Example:', 'bright'));
-    console.log(colorize('    You: "Book a trip for me"', 'yellow'));
-    console.log(colorize('    [LLM calls book-travel tool]', 'magenta'));
-    console.log(colorize('    Tool: "Where would you like to go?"', 'cyan'));
-    console.log(colorize('    You: "Paris"', 'yellow'));
-    console.log(colorize('    Tool: "When would you like to travel?"', 'cyan'));
-    console.log(colorize('    You: "June 1-5"', 'yellow'));
-    console.log(colorize('    ... (and so on)', 'dim'));
-    console.log();
-    console.log(colorize('  Token Tracking:', 'bright'));
-    console.log(colorize('    - Tokens displayed after each LLM response', 'dim'));
-    console.log(colorize('    - Tool prompts do NOT consume LLM tokens', 'dim'));
-    console.log(colorize('    - Use /tokens to see detailed statistics', 'dim'));
-    console.log(colorize('    - Full report generated on exit', 'dim'));
-    console.log();
-    console.log(colorize('═'.repeat(60), 'cyan'));
-    console.log();
   }
 
   /**
@@ -392,7 +292,7 @@ async function main() {
   const modelIndex = args.indexOf('--model');
   const model = modelIndex >= 0 && args[modelIndex + 1] ? args[modelIndex + 1] : 'qwen2.5';
 
-  const client = new InteractiveMCPChatClient(model);
+  const client = new OllamaMCPChatClient(model);
 
   try {
     await client.initialize();

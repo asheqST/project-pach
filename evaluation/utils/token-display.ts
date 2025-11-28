@@ -6,7 +6,7 @@
  */
 
 import { TokenSummary, TokenCallMetrics } from './token-tracker';
-import { colorize } from './terminal-ui';
+import { colorize } from '../../examples/clients/utils/terminal-ui';
 
 /**
  * Display real-time token update after an LLM call

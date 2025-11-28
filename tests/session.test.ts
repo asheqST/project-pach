@@ -15,200 +15,229 @@ describe('SessionManager', () => {
     });
   });
 
-  afterEach(() => {
-    manager.destroy();
+  afterEach(async () => {
+    await manager.destroy();
   });
 
   describe('createSession', () => {
-    it('should create a new session', () => {
-      const session = manager.createSession('test-session', 'test-tool');
+    it('should create a new session', async () => {
+      const { sessionId, state } = await manager.createSession('test-tool');
 
-      expect(session.sessionId).toBe('test-session');
-      expect(session.state).toBe(InteractionState.IDLE);
-      expect(session.metadata.toolName).toBe('test-tool');
-      expect(session.history).toHaveLength(0);
+      expect(sessionId).toBeDefined();
+      expect(typeof sessionId).toBe('string');
+      expect(state.state).toBe(InteractionState.IDLE);
+      expect(state.metadata.toolName).toBe('test-tool');
+      expect(state.history).toHaveLength(0);
     });
 
-    it('should emit created event', (done) => {
-      manager.on('created', (sessionId) => {
-        expect(sessionId).toBe('test-session');
-        done();
+    it('should emit created event', async () => {
+      const eventPromise = new Promise<string>((resolve) => {
+        manager.on('created', (sessionId) => {
+          resolve(sessionId);
+        });
       });
 
-      manager.createSession('test-session', 'test-tool');
+      const { sessionId } = await manager.createSession('test-tool');
+      const emittedId = await eventPromise;
+
+      expect(emittedId).toBe(sessionId);
     });
   });
 
   describe('getSession', () => {
-    it('should retrieve existing session', () => {
-      manager.createSession('test-session', 'test-tool');
-      const session = manager.getSession('test-session');
+    it('should retrieve existing session', async () => {
+      const { sessionId } = await manager.createSession('test-tool');
+      const session = await manager.getSession(sessionId);
 
       expect(session).toBeDefined();
-      expect(session?.sessionId).toBe('test-session');
+      expect(session?.sessionId).toBe(sessionId);
     });
 
-    it('should return undefined for non-existent session', () => {
-      const session = manager.getSession('non-existent');
+    it('should return undefined for non-existent session', async () => {
+      const session = await manager.getSession('non-existent');
       expect(session).toBeUndefined();
     });
   });
 
   describe('updateState', () => {
-    it('should update session state', () => {
-      manager.createSession('test-session', 'test-tool');
-      manager.updateState('test-session', InteractionState.ACTIVE);
+    it('should update session state', async () => {
+      const { sessionId } = await manager.createSession('test-tool');
+      await manager.updateState(sessionId, InteractionState.ACTIVE);
 
-      const session = manager.getSession('test-session');
+      const session = await manager.getSession(sessionId);
       expect(session?.state).toBe(InteractionState.ACTIVE);
     });
 
-    it('should emit updated event', (done) => {
-      manager.createSession('test-session', 'test-tool');
+    it('should emit updated event', async () => {
+      const { sessionId } = await manager.createSession('test-tool');
 
-      manager.on('updated', (sessionId, state) => {
-        expect(sessionId).toBe('test-session');
-        expect(state.state).toBe(InteractionState.ACTIVE);
-        done();
+      const eventPromise = new Promise<{ id: string; state: any }>((resolve) => {
+        manager.on('updated', (id, state) => {
+          resolve({ id, state });
+        });
       });
 
-      manager.updateState('test-session', InteractionState.ACTIVE);
+      await manager.updateState(sessionId, InteractionState.ACTIVE);
+      const { id, state } = await eventPromise;
+
+      expect(id).toBe(sessionId);
+      expect(state.state).toBe(InteractionState.ACTIVE);
     });
 
-    it('should throw error for non-existent session', () => {
-      expect(() => {
-        manager.updateState('non-existent', InteractionState.ACTIVE);
-      }).toThrow('Session not found');
+    it('should throw error for non-existent session', async () => {
+      await expect(async () => {
+        await manager.updateState('non-existent', InteractionState.ACTIVE);
+      }).rejects.toThrow('Session not found');
     });
   });
 
   describe('addTurn', () => {
-    it('should add turn to history', () => {
-      manager.createSession('test-session', 'test-tool');
+    it('should add turn to history', async () => {
+      const { sessionId } = await manager.createSession('test-tool');
 
       const prompt = {
         type: PromptType.TEXT,
         message: 'Test prompt',
       };
 
-      manager.addTurn('test-session', prompt);
+      await manager.addTurn(sessionId, prompt);
 
-      const session = manager.getSession('test-session');
+      const session = await manager.getSession(sessionId);
       expect(session?.history).toHaveLength(1);
       expect(session?.history[0].prompt).toEqual(prompt);
     });
 
-    it('should set current prompt', () => {
-      manager.createSession('test-session', 'test-tool');
+    it('should set current prompt', async () => {
+      const { sessionId } = await manager.createSession('test-tool');
 
       const prompt = {
         type: PromptType.TEXT,
         message: 'Test prompt',
       };
 
-      manager.addTurn('test-session', prompt);
+      await manager.addTurn(sessionId, prompt);
 
-      const session = manager.getSession('test-session');
+      const session = await manager.getSession(sessionId);
       expect(session?.currentPrompt).toEqual(prompt);
     });
   });
 
   describe('setData and getData', () => {
-    it('should store and retrieve data', () => {
-      manager.createSession('test-session', 'test-tool');
+    it('should store and retrieve data', async () => {
+      const { sessionId } = await manager.createSession('test-tool');
 
-      manager.setData('test-session', 'key1', 'value1');
-      manager.setData('test-session', 'key2', 42);
+      await manager.setData(sessionId, 'key1', 'value1');
+      await manager.setData(sessionId, 'key2', 42);
 
-      expect(manager.getData('test-session', 'key1')).toBe('value1');
-      expect(manager.getData('test-session', 'key2')).toBe(42);
+      expect(await manager.getData(sessionId, 'key1')).toBe('value1');
+      expect(await manager.getData(sessionId, 'key2')).toBe(42);
     });
 
-    it('should retrieve all data when no key specified', () => {
-      manager.createSession('test-session', 'test-tool');
+    it('should retrieve all data when no key specified', async () => {
+      const { sessionId } = await manager.createSession('test-tool');
 
-      manager.setData('test-session', 'key1', 'value1');
-      manager.setData('test-session', 'key2', 42);
+      await manager.setData(sessionId, 'key1', 'value1');
+      await manager.setData(sessionId, 'key2', 42);
 
-      const allData = manager.getData('test-session');
+      const allData = await manager.getData(sessionId);
       expect(allData).toEqual({ key1: 'value1', key2: 42 });
     });
   });
 
   describe('completeSession', () => {
-    it('should complete session', () => {
-      manager.createSession('test-session', 'test-tool');
-      manager.completeSession('test-session', { result: 'success' });
+    it('should complete session', async () => {
+      const { sessionId } = await manager.createSession('test-tool');
+      await manager.completeSession(sessionId, { result: 'success' });
 
-      const session = manager.getSession('test-session');
+      const session = await manager.getSession(sessionId);
       expect(session?.state).toBe(InteractionState.COMPLETED);
     });
 
-    it('should emit completed event', (done) => {
-      manager.createSession('test-session', 'test-tool');
+    it('should emit completed event', async () => {
+      const { sessionId } = await manager.createSession('test-tool');
 
-      manager.on('completed', (sessionId, result) => {
-        expect(sessionId).toBe('test-session');
-        expect(result).toEqual({ result: 'success' });
-        done();
+      const eventPromise = new Promise<{ id: string; result: any }>((resolve) => {
+        manager.on('completed', (id, result) => {
+          resolve({ id, result });
+        });
       });
 
-      manager.completeSession('test-session', { result: 'success' });
+      await manager.completeSession(sessionId, { result: 'success' });
+      const { id, result } = await eventPromise;
+
+      expect(id).toBe(sessionId);
+      expect(result).toEqual({ result: 'success' });
     });
   });
 
   describe('cancelSession', () => {
-    it('should cancel session', () => {
-      manager.createSession('test-session', 'test-tool');
-      manager.cancelSession('test-session', 'User cancelled');
+    it('should cancel session', async () => {
+      const { sessionId } = await manager.createSession('test-tool');
+      await manager.cancelSession(sessionId, 'User cancelled');
 
-      const session = manager.getSession('test-session');
+      const session = await manager.getSession(sessionId);
       expect(session?.state).toBe(InteractionState.CANCELLED);
     });
 
-    it('should emit cancelled event', (done) => {
-      manager.createSession('test-session', 'test-tool');
+    it('should emit cancelled event', async () => {
+      const { sessionId } = await manager.createSession('test-tool');
 
-      manager.on('cancelled', (sessionId, reason) => {
-        expect(sessionId).toBe('test-session');
-        expect(reason).toBe('User cancelled');
-        done();
+      const eventPromise = new Promise<{ id: string; reason: string | undefined }>((resolve) => {
+        manager.on('cancelled', (id, reason) => {
+          resolve({ id, reason });
+        });
       });
 
-      manager.cancelSession('test-session', 'User cancelled');
+      await manager.cancelSession(sessionId, 'User cancelled');
+      const { id, reason } = await eventPromise;
+
+      expect(id).toBe(sessionId);
+      expect(reason).toBe('User cancelled');
     });
   });
 
   describe('session timeout', () => {
-    it('should expire session after timeout', (done) => {
+    it('should expire session after timeout', async () => {
       const shortManager = new SessionManager({
-        defaultTimeout: 100,
+        defaultTimeout: 1500, // Min timeout is 1000ms
+        pruneInterval: 1000, // Check for expired sessions every 1000ms (min 1 second for node-cache)
       });
 
-      shortManager.on('expired', (sessionId) => {
-        expect(sessionId).toBe('test-session');
-        shortManager.destroy();
-        done();
+      const eventPromise = new Promise<string>((resolve) => {
+        shortManager.on('expired', (sessionId) => {
+          resolve(sessionId);
+        });
       });
 
-      shortManager.createSession('test-session', 'test-tool');
-    }, 500);
+      const { sessionId } = await shortManager.createSession('test-tool');
+      const expiredId = await eventPromise;
+
+      expect(expiredId).toBe(sessionId);
+      await shortManager.destroy();
+    }, 4000); // Jest timeout must be longer than session timeout + prune interval
   });
 
   describe('getActiveSessions', () => {
-    it('should return only active sessions', () => {
-      manager.createSession('session-1', 'tool-1');
-      manager.createSession('session-2', 'tool-2');
-      manager.createSession('session-3', 'tool-3');
+    it('should return only active sessions', async () => {
+      const { sessionId: id1 } = await manager.createSession('tool-1');
+      const { sessionId: id2 } = await manager.createSession('tool-2');
+      const { sessionId: id3 } = await manager.createSession('tool-3');
 
-      manager.updateState('session-1', InteractionState.ACTIVE);
-      manager.updateState('session-2', InteractionState.WAITING_USER);
-      manager.updateState('session-3', InteractionState.COMPLETED);
+      // Valid state transitions: IDLE -> ACTIVE
+      await manager.updateState(id1, InteractionState.ACTIVE);
 
-      const activeSessions = manager.getActiveSessions();
+      // IDLE -> ACTIVE -> WAITING_USER
+      await manager.updateState(id2, InteractionState.ACTIVE);
+      await manager.updateState(id2, InteractionState.WAITING_USER);
+
+      // IDLE -> ACTIVE -> COMPLETED
+      await manager.updateState(id3, InteractionState.ACTIVE);
+      await manager.updateState(id3, InteractionState.COMPLETED);
+
+      const activeSessions = await manager.getActiveSessions();
       expect(activeSessions).toHaveLength(2);
-      expect(activeSessions.map((s) => s.sessionId)).toContain('session-1');
-      expect(activeSessions.map((s) => s.sessionId)).toContain('session-2');
+      expect(activeSessions.map((s) => s.sessionId)).toContain(id1);
+      expect(activeSessions.map((s) => s.sessionId)).toContain(id2);
     });
   });
 });

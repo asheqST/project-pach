@@ -1009,7 +1009,7 @@ describe('Coverage Tests - Clarification Pattern', () => {
       name: 'smart_clarification',
       description: 'Tests smart clarification',
       async execute(context) {
-        context.setData('userType', 'admin');
+        await context.setData('userType', 'admin');
         const result = await smart.execute(context);
         return { selected: result };
       },
@@ -1314,12 +1314,12 @@ describe('Coverage Tests - Edge Cases', () => {
       name: 'get_data_tool',
       description: 'Tests getData',
       async execute(context) {
-        context.setData('key1', 'value1');
-        context.setData('key2', 'value2');
+        await context.setData('key1', 'value1');
+        await context.setData('key2', 'value2');
 
-        const key1 = context.getData('key1');
-        const key2 = context.getData('key2');
-        const all = context.getData();
+        const key1 = await context.getData('key1');
+        const key2 = await context.getData('key2');
+        const all = await context.getData();
 
         return { key1, key2, all };
       },
@@ -1637,9 +1637,9 @@ describe('Coverage Tests - Edge Cases', () => {
       name: 'get_undefined_key',
       description: 'Tests getData with non-existent key',
       async execute(context) {
-        context.setData('existing', 'value');
-        const existing = context.getData('existing');
-        const nonExistent = context.getData('non-existent');
+        await context.setData('existing', 'value');
+        const existing = await context.getData('existing');
+        const nonExistent = await context.getData('non-existent');
         return { existing, nonExistent };
       },
     };

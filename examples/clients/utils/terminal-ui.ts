@@ -4,7 +4,7 @@
  */
 
 import * as readline from 'readline';
-import { InteractionPrompt, PromptType } from '../../protocol/types.js';
+import { InteractionPrompt, PromptType } from '../../../src/protocol/types.js';
 
 // ANSI color codes
 const colors = {

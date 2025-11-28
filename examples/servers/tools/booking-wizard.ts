@@ -3,9 +3,9 @@
  * Demonstrates the Wizard pattern for a travel booking flow
  */
 
-import { InteractiveTool, ToolExecutionContext } from '../server/interactive-server';
-import { WizardBuilder } from '../patterns/wizard';
-import { PromptType } from '../protocol/types';
+import { InteractiveTool, ToolExecutionContext } from '../../../src/server/interactive-server';
+import { WizardBuilder } from '../../../src/patterns/wizard';
+import { PromptType } from '../../../src/protocol/types';
 
 /**
  * Travel booking wizard tool

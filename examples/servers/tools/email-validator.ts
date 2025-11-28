@@ -3,9 +3,9 @@
  * Demonstrates the Validation pattern with retry logic
  */
 
-import { InteractiveTool, ToolExecutionContext } from '../server/interactive-server';
-import { ValidatedInput, Validators } from '../patterns/validation';
-import { PromptType } from '../protocol/types';
+import { InteractiveTool, ToolExecutionContext } from '../../../src/server/interactive-server';
+import { ValidatedInput, Validators } from '../../../src/patterns/validation';
+import { PromptType } from '../../../src/protocol/types';
 
 /**
  * Email validation tool with domain verification

@@ -3,9 +3,9 @@
  * Demonstrates the Clarification pattern for ambiguity resolution
  */
 
-import { InteractiveTool, ToolExecutionContext } from '../server/interactive-server';
-import { Clarification, Disambiguate } from '../patterns/clarification';
-import { PromptType } from '../protocol/types';
+import { InteractiveTool, ToolExecutionContext } from '../../../src/server/interactive-server';
+import { Clarification, Disambiguate } from '../../../src/patterns/clarification';
+import { PromptType } from '../../../src/protocol/types';
 
 interface FileMatch {
   id: string;

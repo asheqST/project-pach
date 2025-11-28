@@ -100,7 +100,7 @@ describe('Critical Test Verification', () => {
       name: 'state_test',
       description: 'Tests state persistence',
       async execute(context) {
-        console.log('[TOOL] Initial state:', context.getData());
+        console.log('[TOOL] Initial state:', await context.getData());
 
         // First prompt
         await context.prompt({
@@ -108,8 +108,8 @@ describe('Critical Test Verification', () => {
           message: 'First input:',
         });
 
-        context.setData('step1', 'completed');
-        console.log('[TOOL] After step 1:', context.getData());
+        await context.setData('step1', 'completed');
+        console.log('[TOOL] After step 1:', await context.getData());
 
         // Second prompt - verify step1 data still exists
         await context.prompt({
@@ -117,7 +117,7 @@ describe('Critical Test Verification', () => {
           message: 'Second input:',
         });
 
-        const step1Data = context.getData('step1');
+        const step1Data = await context.getData('step1');
         console.log('[TOOL] Step 1 data retrieved:', step1Data);
 
         if (step1Data !== 'completed') {

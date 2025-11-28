@@ -8,8 +8,12 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { Message } from 'ollama';
+import OpenAI from 'openai';
 import { TokenSummary } from './token-tracker';
-import { colorize } from './terminal-ui';
+import { colorize } from '../../examples/clients/utils/terminal-ui';
+
+// Support both Ollama and OpenAI message formats
+export type ConversationMessage = Message | OpenAI.Chat.ChatCompletionMessageParam;
 
 export interface SessionReport {
   mode: 'standard' | 'interactive';
@@ -17,7 +21,7 @@ export interface SessionReport {
   model: string;
   sessionDuration: number;
   tokenSummary: TokenSummary;
-  conversation: Message[];
+  conversation: ConversationMessage[];
   conversationTurns: number;
 }
 
@@ -33,7 +37,7 @@ export class SingleModeReportGenerator {
     model: string,
     sessionDuration: number,
     tokenSummary: TokenSummary,
-    conversation: Message[]
+    conversation: ConversationMessage[]
   ): SessionReport {
     const userTurns = conversation.filter((m) => m.role === 'user').length;
 
@@ -112,7 +116,11 @@ export class SingleModeReportGenerator {
       } else if (msg.role === 'assistant') {
         md += `### Assistant\n\n`;
         if (msg.tool_calls && msg.tool_calls.length > 0) {
-          md += `*Called tool: ${msg.tool_calls[0].function.name}*\n\n`;
+          const firstToolCall = msg.tool_calls[0];
+          // Type guard for function tool calls
+          if ('function' in firstToolCall && firstToolCall.function) {
+            md += `*Called tool: ${firstToolCall.function.name}*\n\n`;
+          }
         }
         if (msg.content) {
           md += `${msg.content}\n\n`;

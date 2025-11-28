@@ -1,18 +1,17 @@
 /**
- * Token Comparison Chat - Standard MCP Mode (OpenRouter)
+ * Token Comparison Chat - Standard MCP Mode
  *
- * Interactive chat interface using Standard MCP (non-interactive) with token tracking using OpenRouter.
+ * Interactive chat interface using Standard MCP (non-interactive) with token tracking.
  * Tracks and reports token usage for conversations using traditional single-turn tool calls.
  *
  * Usage:
- *   export OPENROUTER_API_KEY=your_api_key
  *   npm run build
- *   node dist/examples/token-comparison-standard-openrouter.js [--model MODEL_NAME]
+ *   node dist/examples/token-comparison-standard.js [--model MODEL_NAME]
  */
 
-import OpenAI from 'openai';
-import { StdioTransportAdapter } from '../client/stdio-transport-adapter';
-import { OpenRouterTokenTracker } from './utils/openrouter-token-tracker';
+import { Message, Tool } from 'ollama';
+import { StdioTransportAdapter } from '../src/client/stdio-transport-adapter';
+import { TokenTracker } from './utils/token-tracker';
 import {
   SingleModeReportGenerator,
   SessionReport,
@@ -30,26 +29,22 @@ import {
   displaySuccess,
   getUserInput,
   colorize,
-} from './utils/terminal-ui';
+} from '../examples/clients/utils/terminal-ui';
 import * as path from 'path';
 
 /**
- * Standard MCP Token Comparison Chat Client (OpenRouter)
+ * Standard MCP Token Comparison Chat Client
  */
 class StandardMCPChatClient {
-  private tracker: OpenRouterTokenTracker;
+  private tracker: TokenTracker;
   private transport!: StdioTransportAdapter;
-  private conversation: OpenAI.Chat.ChatCompletionMessageParam[] = [];
-  private tools: OpenAI.Chat.ChatCompletionTool[] = [];
+  private conversation: Message[] = [];
+  private tools: Tool[] = [];
   private model: string;
   private sessionStartTime: number = 0;
 
-  constructor(model: string = 'x-ai/grok-4.1-fast:free') {
-    const apiKey = process.env.OPENROUTER_API_KEY;
-    if (!apiKey) {
-      throw new Error('OPENROUTER_API_KEY environment variable is required');
-    }
-    this.tracker = new OpenRouterTokenTracker(apiKey);
+  constructor(model: string = 'qwen2.5') {
+    this.tracker = new TokenTracker();
     this.model = model;
   }
 
@@ -57,22 +52,8 @@ class StandardMCPChatClient {
    * Initialize the client
    */
   async initialize(): Promise<void> {
-    displayMessage('system', 'Standard MCP Token Comparison (OpenRouter) - Initializing...');
+    displayMessage('system', 'Standard MCP Token Comparison - Initializing...');
     console.log();
-
-    // Check OpenRouter connection
-    try {
-      await this.tracker.getClient().models.list();
-      displaySuccess('Connected to OpenRouter');
-    } catch (error) {
-      displayError('Failed to connect to OpenRouter');
-      console.log();
-      console.log('Make sure you have a valid API key:');
-      console.log('  Get one at: https://openrouter.ai/keys');
-      console.log('  Set it: export OPENROUTER_API_KEY=your_api_key');
-      console.log();
-      throw error;
-    }
 
     // Start standard MCP server
     const serverPath = path.join(
@@ -98,12 +79,7 @@ class StandardMCPChatClient {
     await this.fetchTools();
 
     if (this.tools.length > 0) {
-      const functionTools = this.tools.filter(
-        (t): t is Extract<OpenAI.Chat.ChatCompletionTool, { type: 'function' }> =>
-          t.type === 'function'
-      );
-      const toolNames = functionTools.map((t) => t.function.name).join(', ');
-      displaySuccess(`Loaded ${this.tools.length} tools: ${toolNames}`);
+      displaySuccess(`Loaded ${this.tools.length} tools: ${this.tools.map((t) => t.function.name).join(', ')}`);
     }
 
     // Set up system message
@@ -167,7 +143,7 @@ class StandardMCPChatClient {
     };
 
     this.tools = result.tools.map((tool) => ({
-      type: 'function' as const,
+      type: 'function',
       function: {
         name: tool.name,
         description: tool.description,
@@ -182,7 +158,8 @@ class StandardMCPChatClient {
   async chat(): Promise<void> {
     this.displayChatHeader();
 
-    while (true) {
+    let running = true;
+    while (running) {
       try {
         // Get user input
         const userInput = await getUserInput(colorize('\nYou: ', 'bright'));
@@ -190,6 +167,7 @@ class StandardMCPChatClient {
         // Handle commands
         if (userInput.toLowerCase() === 'exit' || userInput.toLowerCase() === 'quit') {
           await this.handleExit();
+          running = false;
           break;
         }
 
@@ -245,20 +223,17 @@ class StandardMCPChatClient {
       // Display token usage for this call
       displayTokenUpdate(this.tracker.getSummary());
 
-      const message = response.choices[0]?.message;
-
       // Check if there are tool calls
-      if (message?.tool_calls && message.tool_calls.length > 0) {
+      if (response.message.tool_calls && response.message.tool_calls.length > 0) {
         // Add assistant message with tool calls to conversation
         this.conversation.push({
           role: 'assistant',
-          content: message.content || '',
-          tool_calls: message.tool_calls,
+          content: response.message.content || '',
+          tool_calls: response.message.tool_calls,
         });
 
         // Execute each tool call
-        for (const toolCall of message.tool_calls) {
-          if (toolCall.type !== 'function') continue;
+        for (const toolCall of response.message.tool_calls) {
           const toolName = toolCall.function.name;
           displayToolExecution(toolName, 'start');
 
@@ -269,7 +244,6 @@ class StandardMCPChatClient {
             // Add tool result to conversation
             this.conversation.push({
               role: 'tool',
-              tool_call_id: toolCall.id,
               content: JSON.stringify(toolResult),
             });
 
@@ -281,7 +255,6 @@ class StandardMCPChatClient {
             // Add error to conversation
             this.conversation.push({
               role: 'tool',
-              tool_call_id: toolCall.id,
               content: JSON.stringify({ error: (error as Error).message }),
             });
           }
@@ -291,11 +264,11 @@ class StandardMCPChatClient {
         continueProcessing = true;
       } else {
         // No tool calls, display response and stop
-        if (message?.content) {
-          displayMessage('assistant', message.content);
+        if (response.message.content) {
+          displayMessage('assistant', response.message.content);
           this.conversation.push({
             role: 'assistant',
-            content: message.content,
+            content: response.message.content,
           });
         }
         continueProcessing = false;
@@ -307,19 +280,15 @@ class StandardMCPChatClient {
    * Execute a tool via standard MCP protocol
    */
   private async executeStandardTool(toolCall: {
-    id: string;
-    function: { name: string; arguments: string };
+    function: { name: string; arguments: Record<string, unknown> };
   }): Promise<unknown> {
-    // Parse the arguments
-    const args = JSON.parse(toolCall.function.arguments);
-
     const response = await this.transport.send({
       jsonrpc: '2.0',
       id: `tool-call-${Date.now()}`,
       method: 'tools/call',
       params: {
         name: toolCall.function.name,
-        arguments: args,
+        arguments: toolCall.function.arguments,
       },
     });
 
@@ -352,34 +321,12 @@ class StandardMCPChatClient {
 
     // Generate report
     displayMessage('system', 'Generating report...');
-
-    // Convert OpenAI messages to a format compatible with the report generator
-    const conversationForReport = this.conversation.map((msg) => {
-      if (msg.role === 'system') {
-        return { role: 'system', content: msg.content as string };
-      } else if (msg.role === 'user') {
-        return { role: 'user', content: msg.content as string };
-      } else if (msg.role === 'assistant') {
-        return {
-          role: 'assistant',
-          content: msg.content as string || '',
-          tool_calls: (msg as any).tool_calls,
-        };
-      } else if (msg.role === 'tool') {
-        return {
-          role: 'tool',
-          content: msg.content as string,
-        };
-      }
-      return msg;
-    }) as any;
-
     const report: SessionReport = SingleModeReportGenerator.createReport(
       'standard',
       this.model,
       sessionDuration,
       summary,
-      conversationForReport
+      this.conversation
     );
 
     // Display terminal summary
@@ -398,7 +345,7 @@ class StandardMCPChatClient {
   private displayChatHeader(): void {
     console.clear();
     console.log(colorize('═'.repeat(60), 'cyan'));
-    console.log(colorize('  Token Comparison Chat - Standard MCP (OpenRouter)', 'bright'));
+    console.log(colorize('  Token Comparison Chat - Standard MCP', 'bright'));
     console.log(colorize('═'.repeat(60), 'cyan'));
     console.log();
     console.log(colorize('  Mode: Standard MCP (multi-step tool calls)', 'dim'));
@@ -490,7 +437,7 @@ async function main() {
   // Parse command line arguments
   const args = process.argv.slice(2);
   const modelIndex = args.indexOf('--model');
-  const model = modelIndex >= 0 && args[modelIndex + 1] ? args[modelIndex + 1] : 'x-ai/grok-4.1-fast:free';
+  const model = modelIndex >= 0 && args[modelIndex + 1] ? args[modelIndex + 1] : 'qwen2.5';
 
   const client = new StandardMCPChatClient(model);
 

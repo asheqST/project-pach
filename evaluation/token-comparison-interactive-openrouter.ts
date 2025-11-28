@@ -11,9 +11,9 @@
  */
 
 import OpenAI from 'openai';
-import { InteractiveClient } from '../client/interactive-client';
-import { StdioTransportAdapter } from '../client/stdio-transport-adapter';
-import { InteractionPrompt } from '../protocol/types';
+import { InteractiveClient } from '../src/client/interactive-client';
+import { StdioTransportAdapter } from '../src/client/stdio-transport-adapter';
+import { InteractionPrompt } from '../src/protocol/types';
 import { OpenRouterTokenTracker } from './utils/openrouter-token-tracker';
 import {
   SingleModeReportGenerator,
@@ -33,7 +33,7 @@ import {
   getUserInput,
   promptUser,
   colorize,
-} from './utils/terminal-ui';
+} from '../examples/clients/utils/terminal-ui';
 import * as path from 'path';
 
 /**
@@ -172,7 +172,9 @@ class InteractiveMCPChatClient {
   async chat(): Promise<void> {
     this.displayHeader();
 
-    while (true) {
+    // eslint-disable-next-line no-constant-condition
+    let running = true;
+    while (running) {
       try {
         // Get user input
         const userInput = await getUserInput(colorize('\nYou: ', 'bright'));
@@ -180,6 +182,7 @@ class InteractiveMCPChatClient {
         // Handle commands
         if (userInput.toLowerCase() === 'exit' || userInput.toLowerCase() === 'quit') {
           await this.handleExit();
+          running = false;
           break;
         }
 
@@ -317,33 +320,12 @@ class InteractiveMCPChatClient {
     // Generate report
     displayMessage('system', 'Generating report...');
 
-    // Convert OpenAI messages to a format compatible with the report generator
-    const conversationForReport = this.conversation.map((msg) => {
-      if (msg.role === 'system') {
-        return { role: 'system', content: msg.content as string };
-      } else if (msg.role === 'user') {
-        return { role: 'user', content: msg.content as string };
-      } else if (msg.role === 'assistant') {
-        return {
-          role: 'assistant',
-          content: msg.content as string || '',
-          tool_calls: (msg as any).tool_calls,
-        };
-      } else if (msg.role === 'tool') {
-        return {
-          role: 'tool',
-          content: msg.content as string,
-        };
-      }
-      return msg;
-    }) as any;
-
     const report: SessionReport = SingleModeReportGenerator.createReport(
       'interactive',
       this.model,
       sessionDuration,
       summary,
-      conversationForReport
+      this.conversation
     );
 
     // Display terminal summary

@@ -20,7 +20,6 @@ import {
 import {
   createResponse,
   Errors,
-  generateSessionId,
 } from '../protocol/utils';
 import { validateResponse, normalizeResponse } from '../protocol/validator';
 
@@ -39,8 +38,8 @@ export interface ToolExecutionContext {
 
   // Methods available to tools during execution
   prompt: (prompt: InteractionPrompt) => Promise<InteractionResponse>;
-  setData: (key: string, value: unknown) => void;
-  getData: (key?: string) => unknown;
+  setData: (key: string, value: unknown) => Promise<void>;
+  getData: (key?: string) => Promise<unknown>;
   updateProgress: (current: number, total: number, message?: string) => void;
 }
 
@@ -187,14 +186,13 @@ export class InteractiveServer extends EventEmitter<ServerEvents> {
       return createResponse(id, undefined, Errors.invalidParams(`Tool not found: ${toolName}`));
     }
 
-    const sessionId = generateSessionId();
-    const session = this.sessionManager.createSession(sessionId, toolName, context, timeout);
+    const { sessionId, state: session } = await this.sessionManager.createSession(toolName, context, timeout);
 
     this.emit('toolStarted', sessionId, toolName);
 
     // Execute tool asynchronously
-    this.executeTool(sessionId, tool, initialParams, context).catch((error) => {
-      this.sessionManager.errorSession(sessionId, error);
+    this.executeTool(sessionId, tool, initialParams, context).catch(async (error) => {
+      await this.sessionManager.errorSession(sessionId, error);
       this.emit('error', error);
     });
 
@@ -216,7 +214,7 @@ export class InteractiveServer extends EventEmitter<ServerEvents> {
       response: InteractionResponse;
     };
 
-    const session = this.sessionManager.getSession(sessionId);
+    const session = await this.sessionManager.getSession(sessionId);
     if (!session) {
       return createResponse(id, undefined, Errors.sessionNotFound(sessionId));
     }
@@ -242,8 +240,8 @@ export class InteractiveServer extends EventEmitter<ServerEvents> {
     };
 
     // Add to history
-    this.sessionManager.addTurn(sessionId, undefined, normalizedResponse);
-    this.sessionManager.updateState(sessionId, InteractionState.PROCESSING);
+    await this.sessionManager.addTurn(sessionId, undefined, normalizedResponse);
+    await this.sessionManager.updateState(sessionId, InteractionState.PROCESSING);
 
     // Resolve pending prompt
     const resolver = this.pendingPrompts.get(sessionId);
@@ -270,11 +268,11 @@ export class InteractiveServer extends EventEmitter<ServerEvents> {
       reason?: string;
     };
 
-    if (!this.sessionManager.hasSession(sessionId)) {
+    if (!(await this.sessionManager.hasSession(sessionId))) {
       return createResponse(id, undefined, Errors.sessionNotFound(sessionId));
     }
 
-    this.sessionManager.cancelSession(sessionId, reason);
+    await this.sessionManager.cancelSession(sessionId, reason);
 
     return createResponse(id, {
       cancelled: true,
@@ -290,7 +288,7 @@ export class InteractiveServer extends EventEmitter<ServerEvents> {
   ): Promise<JsonRpcResponse> {
     const { sessionId } = params as { sessionId: SessionId };
 
-    const session = this.sessionManager.getSession(sessionId);
+    const session = await this.sessionManager.getSession(sessionId);
     if (!session) {
       return createResponse(id, undefined, Errors.sessionNotFound(sessionId));
     }
@@ -366,8 +364,7 @@ export class InteractiveServer extends EventEmitter<ServerEvents> {
       return createResponse(id, undefined, Errors.invalidParams(`Tool not found: ${name}`));
     }
 
-    const sessionId = generateSessionId();
-    this.sessionManager.createSession(sessionId, name);
+    const { sessionId } = await this.sessionManager.createSession(name);
 
     try {
       // For tools/call, we execute synchronously without interactive prompts
@@ -378,16 +375,16 @@ export class InteractiveServer extends EventEmitter<ServerEvents> {
         prompt: async () => {
           throw new Error('Interactive prompts not supported in tools/call');
         },
-        setData: (key: string, value: unknown) => {
-          this.sessionManager.setData(sessionId, key, value);
+        setData: async (key: string, value: unknown) => {
+          await this.sessionManager.setData(sessionId, key, value);
         },
-        getData: (key?: string) => {
-          return this.sessionManager.getData(sessionId, key);
+        getData: async (key?: string) => {
+          return await this.sessionManager.getData(sessionId, key);
         },
         updateProgress: () => {},
       });
 
-      this.sessionManager.completeSession(sessionId, result);
+      await this.sessionManager.completeSession(sessionId, result);
 
       return createResponse(id, {
         content: [
@@ -398,7 +395,7 @@ export class InteractiveServer extends EventEmitter<ServerEvents> {
         ],
       });
     } catch (error) {
-      this.sessionManager.errorSession(sessionId, error as Error);
+      await this.sessionManager.errorSession(sessionId, error as Error);
       return createResponse(id, undefined, Errors.internalError((error as Error).message));
     }
   }
@@ -412,7 +409,7 @@ export class InteractiveServer extends EventEmitter<ServerEvents> {
     initialParams?: Record<string, unknown>,
     context?: Record<string, unknown>
   ): Promise<void> {
-    this.sessionManager.updateState(sessionId, InteractionState.ACTIVE);
+    await this.sessionManager.updateState(sessionId, InteractionState.ACTIVE);
 
     const executionContext: ToolExecutionContext = {
       sessionId,
@@ -423,12 +420,12 @@ export class InteractiveServer extends EventEmitter<ServerEvents> {
         return this.promptUser(sessionId, prompt);
       },
 
-      setData: (key: string, value: unknown) => {
-        this.sessionManager.setData(sessionId, key, value);
+      setData: async (key: string, value: unknown) => {
+        await this.sessionManager.setData(sessionId, key, value);
       },
 
-      getData: (key?: string) => {
-        return this.sessionManager.getData(sessionId, key);
+      getData: async (key?: string) => {
+        return await this.sessionManager.getData(sessionId, key);
       },
 
       updateProgress: (_current: number, _total: number, _message?: string) => {
@@ -439,10 +436,10 @@ export class InteractiveServer extends EventEmitter<ServerEvents> {
 
     try {
       const result = await tool.execute(executionContext);
-      this.sessionManager.completeSession(sessionId, result);
+      await this.sessionManager.completeSession(sessionId, result);
       this.emit('toolCompleted', sessionId, result);
     } catch (error) {
-      this.sessionManager.errorSession(sessionId, error as Error);
+      await this.sessionManager.errorSession(sessionId, error as Error);
       throw error;
     }
   }
@@ -454,9 +451,21 @@ export class InteractiveServer extends EventEmitter<ServerEvents> {
     sessionId: SessionId,
     prompt: InteractionPrompt
   ): Promise<InteractionResponse> {
+    // Get current state to handle proper transition
+    const session = await this.sessionManager.getSession(sessionId);
+    if (!session) {
+      throw new Error('Session not found');
+    }
+
+    // If we're in PROCESSING state, transition back to ACTIVE first
+    // This allows for multiple prompts in sequence: PROCESSING → ACTIVE → WAITING_USER
+    if (session.state === InteractionState.PROCESSING) {
+      await this.sessionManager.updateState(sessionId, InteractionState.ACTIVE);
+    }
+
     // Add prompt to history
-    this.sessionManager.addTurn(sessionId, prompt, undefined);
-    this.sessionManager.updateState(sessionId, InteractionState.WAITING_USER);
+    await this.sessionManager.addTurn(sessionId, prompt, undefined);
+    await this.sessionManager.updateState(sessionId, InteractionState.WAITING_USER);
 
     // Wait for response
     return new Promise((resolve) => {
@@ -485,8 +494,8 @@ export class InteractiveServer extends EventEmitter<ServerEvents> {
    * Cleans up server resources
    * Call this before shutting down the server
    */
-  destroy(): void {
-    this.sessionManager.destroy();
+  async destroy(): Promise<void> {
+    await this.sessionManager.destroy();
     this.tools.clear();
     this.pendingPrompts.clear();
     this.removeAllListeners();
