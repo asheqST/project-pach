@@ -32,7 +32,7 @@ export interface TokenSummary {
 /**
  * Wraps Ollama client to track token usage
  */
-export class TokenTracker {
+export class OllamaTokenTracker {
   private ollama: Ollama;
   private calls: TokenCallMetrics[] = [];
   private callCounter = 0;

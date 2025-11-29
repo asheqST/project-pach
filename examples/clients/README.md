@@ -44,13 +44,13 @@ npm run build
 ### 2. Run the chat client
 
 ```bash
-node dist/examples/ollama-chat-client.js
+./examples/dist/clients/ollama-chat-client
 ```
 
 Or with a specific model:
 
 ```bash
-node dist/examples/ollama-chat-client.js --model mistral
+./examples/dist/clients/ollama-chat-client --model mistral
 ```
 
 ## Available Tools

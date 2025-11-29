@@ -26,7 +26,7 @@ These tools provide real-time token tracking during chat conversations, demonstr
 ## Tools
 
 ### 1. Token Comparison Chat - Standard MCP
-**File**: `src/examples/token-comparison-standard.ts`
+**File**: `evaluation/token-comparison-standard.ts`
 
 Chat interface demonstrating standard MCP with multi-step tool calls:
 - Uses `standard-mcp-server` with separate tools for each step
@@ -43,7 +43,7 @@ Chat interface demonstrating standard MCP with multi-step tool calls:
 - `cancel-booking` - Reset booking
 
 ### 2. Token Comparison Chat - Interactive MCP Flow
-**File**: `src/examples/token-comparison-interactive.ts`
+**File**: `evaluation/token-comparison-interactive-ollama.ts`
 
 Chat interface demonstrating Interactive MCP Flow:
 - Uses `stdio-server` with `book-travel` interactive tool
@@ -77,7 +77,14 @@ ollama serve
 
 ### 4. Build the Project
 ```bash
+# Build the main library first
 npm run build
+
+# Build the evaluation scripts
+npm run build:evaluation
+
+# Or build both at once
+npm run build:all
 ```
 
 ## Usage
@@ -85,19 +92,29 @@ npm run build
 ### Standard MCP Mode (Multi-Step Tool Calls)
 
 ```bash
-node dist/examples/token-comparison-standard.js
+node evaluation/dist/token-comparison-standard.js
 
 # With specific model:
-node dist/examples/token-comparison-standard.js --model mistral
+node evaluation/dist/token-comparison-standard.js --model mistral
+```
+
+```bash
+# For OpenRouter:
+node evaluation/dist/token-comparison-standard-openrouter.js
 ```
 
 ### Interactive MCP Flow Mode
 
 ```bash
-node dist/examples/token-comparison-interactive.js
+node evaluation/dist/token-comparison-interactive-ollama.js
 
 # With specific model:
-node dist/examples/token-comparison-interactive.js --model qwen2.5
+node evaluation/dist/token-comparison-interactive-ollama.js --model qwen2.5
+```
+
+```bash
+# For OpenRouter:
+node evaluation/dist/token-comparison-interactive-openrouter.js
 ```
 
 ## Features

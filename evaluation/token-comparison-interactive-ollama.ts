@@ -6,7 +6,7 @@
  *
  * Usage:
  *   npm run build
- *   node dist/examples/token-comparison-interactive.js [--model MODEL_NAME]
+ *   node dist/examples/token-comparison-interactive-ollama.js [--model MODEL_NAME]
  */
 
 import * as dotenv from 'dotenv';
@@ -19,7 +19,7 @@ import { Message, Tool } from 'ollama';
 import { InteractiveClient } from '../src/client/interactive-client';
 import { StdioTransportAdapter } from '../src/client/stdio-transport-adapter';
 import { InteractionPrompt } from '../src/protocol/types';
-import { TokenTracker } from './utils/token-tracker';
+import { OllamaTokenTracker } from './utils/ollama-token-tracker';
 import {
   SingleModeReportGenerator,
   SessionReport,
@@ -44,7 +44,7 @@ import {
  * Interactive MCP Flow Chat Client with Token Tracking
  */
 class InteractiveMCPChatClient {
-  private tracker: TokenTracker;
+  private tracker: OllamaTokenTracker;
   private mcpClient!: InteractiveClient;
   private transport!: StdioTransportAdapter;
   private conversation: Message[] = [];
@@ -53,7 +53,7 @@ class InteractiveMCPChatClient {
   private sessionStartTime: number = 0;
 
   constructor(model: string = 'qwen2.5') {
-    this.tracker = new TokenTracker();
+    this.tracker = new OllamaTokenTracker();
     this.model = model;
   }
 
@@ -80,7 +80,7 @@ class InteractiveMCPChatClient {
     displayMessage('system', 'Starting MCP Flow server...');
 
     // Start MCP server via stdio
-    const serverPath = path.join(__dirname, '..', '..', 'dist', 'examples', 'servers', 'stdio-server.js');
+    const serverPath = path.join(__dirname, '..', '..','examples','dist', 'stdio-server.js');
     this.transport = new StdioTransportAdapter({
       command: 'node',
       args: [serverPath],

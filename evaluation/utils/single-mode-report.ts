@@ -9,7 +9,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { Message } from 'ollama';
 import OpenAI from 'openai';
-import { TokenSummary } from './token-tracker';
+import { TokenSummary } from './ollama-token-tracker';
 import { colorize } from '../../examples/clients/utils/terminal-ui';
 
 // Support both Ollama and OpenAI message formats

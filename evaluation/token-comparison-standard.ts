@@ -17,7 +17,7 @@ dotenv.config({ path: path.join(__dirname, '..', '..', '.env') });
 
 import { Message, Tool } from 'ollama';
 import { StdioTransportAdapter } from '../src/client/stdio-transport-adapter';
-import { TokenTracker } from './utils/token-tracker';
+import { OllamaTokenTracker } from './utils/ollama-token-tracker';
 import {
   SingleModeReportGenerator,
   SessionReport,
@@ -41,7 +41,7 @@ import {
  * Standard MCP Token Comparison Chat Client
  */
 class StandardMCPChatClient {
-  private tracker: TokenTracker;
+  private tracker: OllamaTokenTracker;
   private transport!: StdioTransportAdapter;
   private conversation: Message[] = [];
   private tools: Tool[] = [];
@@ -49,7 +49,7 @@ class StandardMCPChatClient {
   private sessionStartTime: number = 0;
 
   constructor(model: string = 'qwen2.5') {
-    this.tracker = new TokenTracker();
+    this.tracker = new OllamaTokenTracker();
     this.model = model;
   }
 

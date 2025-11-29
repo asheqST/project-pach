@@ -5,7 +5,7 @@
  * during chat sessions.
  */
 
-import { TokenSummary, TokenCallMetrics } from './token-tracker';
+import { TokenSummary, TokenCallMetrics } from './ollama-token-tracker';
 import { colorize } from '../../examples/clients/utils/terminal-ui';
 
 /**

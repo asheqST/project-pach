@@ -40,17 +40,21 @@ Located in `servers/tools/`, these demonstrate different interaction patterns:
 
 1. **Build the project:**
    ```bash
+   # Build library and examples together
    npm run build
+
+   # Or build only examples (requires library to be built first)
+   npm run build:examples
    ```
 
 2. **Run a server example:**
    ```bash
-   node dist/examples/servers/stdio-server.js
+   ./examples/dist/servers/stdio-server
    ```
 
 3. **Run a client example:**
    ```bash
-   node dist/examples/clients/ollama-chat-client.js
+   ./examples/dist/clients/ollama-chat-client
    ```
 
 ## Additional Resources

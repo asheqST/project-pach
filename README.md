@@ -26,7 +26,6 @@ npm install mcp-flow
 ```
 
 MCP Flow is built on top of the official `@modelcontextprotocol/sdk`, providing interactive capabilities as an extension to the base MCP protocol.
-> **📦 Local Development:** If you want to use MCPFlow locally before it's published to npm, see the [Local Setup Guide](docs/LOCAL_SETUP.md) for detailed instructions on building and linking the package.
 
 ### Server Setup
 
@@ -239,7 +238,11 @@ MCP Flow **extends** the official `@modelcontextprotocol/sdk` instead of reimple
 ### Three-Layer Design
 
 1. **Protocol Layer**: Interactive message types extending MCP SDK protocol types
-2. **Session Layer**: State persistence and lifecycle management
+2. **Session Layer**: State persistence and lifecycle management with enterprise-grade features
+   - **XState Integration**: Validated state transitions with formal state machine
+   - **Storage Abstraction**: Pluggable storage (in-memory node-cache or distributed Redis)
+   - **Security Hardening**: Cryptographically secure IDs (nanoid), input validation, prototype pollution prevention
+   - **Automatic Expiration**: TTL-based cleanup with event-driven callbacks
 3. **Flow Control Layer**: Branching logic, validation, and progress tracking
 
 For detailed architecture information, see [ARCHITECTURE.md](docs/ARCHITECTURE.md).
@@ -248,13 +251,26 @@ For detailed architecture information, see [ARCHITECTURE.md](docs/ARCHITECTURE.m
 
 MCP Flow supports both approaches:
 
-**Stateful** (default): Server maintains session state in memory
+**Stateful** (default): Server maintains session state with pluggable storage
 
 ```typescript
+// In-memory storage (default)
 const server = new InteractiveServer({
   session: {
     defaultTimeout: 300000,
-    maxSessions: 1000
+    maxSessions: 1000,
+    storageType: 'memory' // node-cache with automatic cloning
+  }
+});
+
+// Redis storage for distributed deployments
+const server = new InteractiveServer({
+  session: {
+    storageType: 'redis',
+    redis: {
+      host: 'localhost',
+      port: 6379
+    }
   }
 });
 ```
@@ -270,11 +286,28 @@ const token = handler.createToken(sessionId, toolName);
 
 ## Examples
 
-See `src/examples/` for complete implementations:
+### Server Examples with Interactive Tools
+
+See `examples/servers/tools/` for complete tool implementations:
 
 - **booking-wizard.ts** - Travel booking with wizard pattern
 - **email-validator.ts** - Email validation with retry logic
 - **file-finder.ts** - File search with disambiguation
+
+### Client Examples
+
+See `examples/clients/` for client implementations:
+
+- **ollama-chat-client.ts** - Terminal-based chat interface using Ollama LLM with MCP Flow
+
+### Full Server Examples
+
+See `examples/servers/` for complete server setups:
+
+- **stdio-server.ts** - Interactive MCP server using stdio transport
+- **standard-mcp-server.ts** - Standard non-interactive MCP server for comparison
+
+For detailed examples documentation, see [examples/README.md](examples/README.md).
 
 ## API Reference
 
