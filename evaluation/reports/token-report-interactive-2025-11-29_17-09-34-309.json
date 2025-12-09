@@ -1,0 +1,70 @@
+{
+  "mode": "interactive",
+  "timestamp": "2025-11-29T17:09:34.302Z",
+  "model": "x-ai/grok-4.1-fast:free",
+  "sessionDuration": 1991855,
+  "tokenSummary": {
+    "totalCalls": 2,
+    "totalPromptTokens": 879,
+    "totalCompletionTokens": 587,
+    "totalTokens": 1466,
+    "averagePromptTokens": 439.5,
+    "averageCompletionTokens": 293.5,
+    "averageTotalTokens": 733,
+    "peakContextSize": 472,
+    "toolCallsCount": 1,
+    "callBreakdown": [
+      {
+        "callNumber": 1,
+        "promptTokens": 407,
+        "completionTokens": 280,
+        "totalTokens": 687,
+        "timestamp": 1764434196647,
+        "hasToolCalls": true
+      },
+      {
+        "callNumber": 2,
+        "promptTokens": 472,
+        "completionTokens": 307,
+        "totalTokens": 779,
+        "timestamp": 1764434221016,
+        "hasToolCalls": false
+      }
+    ]
+  },
+  "conversation": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant with access to interactive tools. When you use a tool, it may ask you follow-up questions. Be natural and conversational in your responses."
+    },
+    {
+      "role": "user",
+      "content": "book me a trip"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "tool_calls": [
+        {
+          "id": "call_96096964",
+          "index": 0,
+          "type": "function",
+          "function": {
+            "name": "book-travel",
+            "arguments": "{}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call_96096964",
+      "content": "{\"success\":true,\"booking\":{\"destination\":\"paris\",\"dates\":\"june 15 - 26 2026\",\"travelers\":3,\"confirmationId\":\"BK-1764434216164\"}}"
+    },
+    {
+      "role": "assistant",
+      "content": "Great! I've successfully booked your trip to **Paris** for **June 15 - 26, 2026**, for **3 travelers**. \n\nYour confirmation ID is **BK-1764434216164**. Anything else I can help with, like changes or add-ons? 😊"
+    }
+  ],
+  "conversationTurns": 1
+}

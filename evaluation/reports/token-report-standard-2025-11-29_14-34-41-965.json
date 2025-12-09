@@ -1,0 +1,128 @@
+{
+  "mode": "standard",
+  "timestamp": "2025-11-29T14:34:41.964Z",
+  "model": "x-ai/grok-4.1-fast:free",
+  "sessionDuration": 61844,
+  "tokenSummary": {
+    "totalCalls": 3,
+    "totalPromptTokens": 2531,
+    "totalCompletionTokens": 1146,
+    "totalTokens": 3677,
+    "averagePromptTokens": 843.6666666666666,
+    "averageCompletionTokens": 382,
+    "averageTotalTokens": 1225.6666666666667,
+    "peakContextSize": 1099,
+    "toolCallsCount": 1,
+    "callBreakdown": [
+      {
+        "callNumber": 1,
+        "promptTokens": 664,
+        "completionTokens": 258,
+        "totalTokens": 922,
+        "timestamp": 1764426832937,
+        "hasToolCalls": false
+      },
+      {
+        "callNumber": 2,
+        "promptTokens": 768,
+        "completionTokens": 649,
+        "totalTokens": 1417,
+        "timestamp": 1764426871834,
+        "hasToolCalls": true
+      },
+      {
+        "callNumber": 3,
+        "promptTokens": 1099,
+        "completionTokens": 239,
+        "totalTokens": 1338,
+        "timestamp": 1764426878353,
+        "hasToolCalls": false
+      }
+    ]
+  },
+  "conversation": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant with access to travel booking tools. You can help users book trips by calling separate tools for each piece of information. Use set-destination, set-dates, and set-travelers tools as the user provides information, then call confirm-booking when all information is collected. Be conversational and guide the user through the booking process."
+    },
+    {
+      "role": "user",
+      "content": "book me a trip"
+    },
+    {
+      "role": "assistant",
+      "content": "Sure, I'd be happy to help you book a trip! To get started, could you tell me:\n\n- Your destination (e.g., Paris, Tokyo, New York)?\n- Travel dates (e.g., June 1-5, 2024)?\n- Number of travelers (1-10 people)?\n\nOnce I have those details, I can set everything up and confirm the booking for you! 😊"
+    },
+    {
+      "role": "user",
+      "content": "Paris, May 15-29 2026 , 3 travellers"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "tool_calls": [
+        {
+          "id": "call_52074953",
+          "index": 0,
+          "type": "function",
+          "function": {
+            "name": "set-destination",
+            "arguments": "{\"destination\":\"Paris\"}"
+          }
+        },
+        {
+          "id": "call_27708513",
+          "index": 1,
+          "type": "function",
+          "function": {
+            "name": "set-dates",
+            "arguments": "{\"dates\":\"May 15-29, 2026\"}"
+          }
+        },
+        {
+          "id": "call_55252275",
+          "index": 2,
+          "type": "function",
+          "function": {
+            "name": "set-travelers",
+            "arguments": "{\"travelers\":3}"
+          }
+        },
+        {
+          "id": "call_59081726",
+          "index": 3,
+          "type": "function",
+          "function": {
+            "name": "confirm-booking",
+            "arguments": "{}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call_52074953",
+      "content": "{\"success\":true,\"message\":\"Destination set to Paris\",\"currentBooking\":{\"destination\":\"Paris\"},\"nextSteps\":[\"Set travel dates using set-dates tool\",\"Set number of travelers using set-travelers tool\"]}"
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call_27708513",
+      "content": "{\"success\":true,\"message\":\"Travel dates set to May 15-29, 2026\",\"currentBooking\":{\"destination\":\"Paris\",\"dates\":\"May 15-29, 2026\"},\"nextSteps\":[\"Set number of travelers using set-travelers tool\"]}"
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call_55252275",
+      "content": "{\"success\":true,\"message\":\"Number of travelers set to 3\",\"currentBooking\":{\"destination\":\"Paris\",\"dates\":\"May 15-29, 2026\",\"travelers\":3},\"nextSteps\":[\"Confirm booking using confirm-booking tool\"]}"
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call_59081726",
+      "content": "{\"success\":true,\"booking\":{\"destination\":\"Paris\",\"dates\":\"May 15-29, 2026\",\"travelers\":3,\"confirmationId\":\"BK-1764426871839\"},\"message\":\"Successfully booked trip to Paris for 3 traveler(s) on May 15-29, 2026\"}"
+    },
+    {
+      "role": "assistant",
+      "content": "Great! I've got all the details set:\n\n- **Destination**: Paris\n- **Dates**: May 15-29, 2026\n- **Travelers**: 3\n\nYour trip is now **confirmed** with **confirmation ID: BK-1764426871839**. \n\nIf you need to make changes, cancel, or book something else, just let me know! Safe travels! ✈️🥐"
+    }
+  ],
+  "conversationTurns": 2
+}

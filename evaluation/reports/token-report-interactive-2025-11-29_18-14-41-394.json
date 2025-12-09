@@ -1,0 +1,70 @@
+{
+  "mode": "interactive",
+  "timestamp": "2025-11-29T18:14:41.389Z",
+  "model": "x-ai/grok-4.1-fast:free",
+  "sessionDuration": 1141950,
+  "tokenSummary": {
+    "totalCalls": 2,
+    "totalPromptTokens": 879,
+    "totalCompletionTokens": 492,
+    "totalTokens": 1371,
+    "averagePromptTokens": 439.5,
+    "averageCompletionTokens": 246,
+    "averageTotalTokens": 685.5,
+    "peakContextSize": 472,
+    "toolCallsCount": 1,
+    "callBreakdown": [
+      {
+        "callNumber": 1,
+        "promptTokens": 407,
+        "completionTokens": 215,
+        "totalTokens": 622,
+        "timestamp": 1764438951311,
+        "hasToolCalls": true
+      },
+      {
+        "callNumber": 2,
+        "promptTokens": 472,
+        "completionTokens": 277,
+        "totalTokens": 749,
+        "timestamp": 1764438992642,
+        "hasToolCalls": false
+      }
+    ]
+  },
+  "conversation": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant with access to interactive tools. When you use a tool, it may ask you follow-up questions. Be natural and conversational in your responses."
+    },
+    {
+      "role": "user",
+      "content": "book me a trip"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "tool_calls": [
+        {
+          "id": "call_26631922",
+          "index": 0,
+          "type": "function",
+          "function": {
+            "name": "book-travel",
+            "arguments": "{}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call_26631922",
+      "content": "{\"success\":true,\"booking\":{\"destination\":\"paris\",\"dates\":\"june 15 - 28 2026\",\"travelers\":3,\"confirmationId\":\"BK-1764438987711\"}}"
+    },
+    {
+      "role": "assistant",
+      "content": "Great! I've successfully booked your trip to **Paris** for **June 15 - 28, 2026**, with **3 travelers**. Your confirmation ID is **BK-1764438987711**. \n\nIf you need to make changes, add details like flights/hotels, or book something else, just let me know! 😊"
+    }
+  ],
+  "conversationTurns": 1
+}

@@ -1,0 +1,70 @@
+{
+  "mode": "interactive",
+  "timestamp": "2025-11-29T14:33:00.607Z",
+  "model": "x-ai/grok-4.1-fast:free",
+  "sessionDuration": 37388,
+  "tokenSummary": {
+    "totalCalls": 2,
+    "totalPromptTokens": 876,
+    "totalCompletionTokens": 524,
+    "totalTokens": 1400,
+    "averagePromptTokens": 438,
+    "averageCompletionTokens": 262,
+    "averageTotalTokens": 700,
+    "peakContextSize": 469,
+    "toolCallsCount": 1,
+    "callBreakdown": [
+      {
+        "callNumber": 1,
+        "promptTokens": 407,
+        "completionTokens": 289,
+        "totalTokens": 696,
+        "timestamp": 1764426752550,
+        "hasToolCalls": true
+      },
+      {
+        "callNumber": 2,
+        "promptTokens": 469,
+        "completionTokens": 235,
+        "totalTokens": 704,
+        "timestamp": 1764426772920,
+        "hasToolCalls": false
+      }
+    ]
+  },
+  "conversation": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant with access to interactive tools. When you use a tool, it may ask you follow-up questions. Be natural and conversational in your responses."
+    },
+    {
+      "role": "user",
+      "content": "book me a trip"
+    },
+    {
+      "role": "assistant",
+      "content": "",
+      "tool_calls": [
+        {
+          "id": "call_49188551",
+          "index": 0,
+          "type": "function",
+          "function": {
+            "name": "book-travel",
+            "arguments": "{}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call_49188551",
+      "content": "{\"success\":true,\"booking\":{\"destination\":\"Paris\",\"dates\":\"May 15-29 2026\",\"travelers\":4,\"confirmationId\":\"BK-1764426767631\"}}"
+    },
+    {
+      "role": "assistant",
+      "content": "Great! I've booked your trip to **Paris** for **May 15-29, 2026**, for **4 travelers**. Your confirmation ID is **BK-1764426767631**. \n\nIf you need to make changes, add flights/hotels, or anything else, just let me know! 😊"
+    }
+  ],
+  "conversationTurns": 1
+}
