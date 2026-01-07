@@ -9,6 +9,12 @@
  *   node dist/examples/token-comparison-standard.js [--model MODEL_NAME]
  */
 
+import * as dotenv from 'dotenv';
+import * as path from 'path';
+
+// Load environment variables from .env file in project root
+dotenv.config({ path: path.join(__dirname, '..', '..', '.env') });
+
 import { Message, Tool } from 'ollama';
 import { StdioTransportAdapter } from '../src/client/stdio-transport-adapter';
 import { TokenTracker } from './utils/token-tracker';
@@ -30,7 +36,6 @@ import {
   getUserInput,
   colorize,
 } from '../examples/clients/utils/terminal-ui';
-import * as path from 'path';
 
 /**
  * Standard MCP Token Comparison Chat Client
@@ -212,7 +217,7 @@ class StandardMCPChatClient {
     let continueProcessing = true;
 
     while (continueProcessing) {
-      displayMessage('system', 'Thinking...');
+      displayMessage('system', 'GobleGoble...');
 
       // Call LLM through TokenTracker
       const response = await this.tracker.chat({

@@ -10,6 +10,12 @@
  *   node dist/examples/token-comparison-interactive-openrouter.js [--model MODEL_NAME]
  */
 
+import * as dotenv from 'dotenv';
+import * as path from 'path';
+
+// Load environment variables from .env file in project root
+dotenv.config({ path: path.join(__dirname, '..', '..', '.env') });
+
 import OpenAI from 'openai';
 import { InteractiveClient } from '../src/client/interactive-client';
 import { StdioTransportAdapter } from '../src/client/stdio-transport-adapter';
@@ -34,7 +40,6 @@ import {
   promptUser,
   colorize,
 } from '../examples/clients/utils/terminal-ui';
-import * as path from 'path';
 
 /**
  * Interactive MCP Flow Chat Client with Token Tracking (OpenRouter)
@@ -48,7 +53,7 @@ class InteractiveMCPChatClient {
   private model: string;
   private sessionStartTime: number = 0;
 
-  constructor(model: string = 'x-ai/grok-4.1-fast:free') {
+  constructor(model: string = 'mistralai/devstral-2512:free') {
     const apiKey = process.env.OPENROUTER_API_KEY;
     if (!apiKey) {
       throw new Error('OPENROUTER_API_KEY environment variable is required');
@@ -226,7 +231,7 @@ class InteractiveMCPChatClient {
     let continueProcessing = true;
 
     while (continueProcessing) {
-      displayMessage('system', 'Thinking...');
+      displayMessage('system', 'GobleGoble...');
 
       // Call OpenRouter through TokenTracker
       const response = await this.tracker.chat({
@@ -409,7 +414,7 @@ async function main() {
   // Parse command line arguments
   const args = process.argv.slice(2);
   const modelIndex = args.indexOf('--model');
-  const model = modelIndex >= 0 && args[modelIndex + 1] ? args[modelIndex + 1] : 'x-ai/grok-4.1-fast:free';
+  const model = modelIndex >= 0 && args[modelIndex + 1] ? args[modelIndex + 1] : 'mistralai/devstral-2512:free';
 
   const client = new InteractiveMCPChatClient(model);
 

@@ -9,6 +9,12 @@
  *   node dist/examples/token-comparison-interactive.js [--model MODEL_NAME]
  */
 
+import * as dotenv from 'dotenv';
+import * as path from 'path';
+
+// Load environment variables from .env file in project root
+dotenv.config({ path: path.join(__dirname, '..', '..', '.env') });
+
 import { Message, Tool } from 'ollama';
 import { InteractiveClient } from '../src/client/interactive-client';
 import { StdioTransportAdapter } from '../src/client/stdio-transport-adapter';
@@ -33,7 +39,6 @@ import {
   promptUser,
   colorize,
 } from '../examples/clients/utils/terminal-ui';
-import * as path from 'path';
 
 /**
  * Interactive MCP Flow Chat Client with Token Tracking
@@ -215,7 +220,7 @@ class InteractiveMCPChatClient {
     let continueProcessing = true;
 
     while (continueProcessing) {
-      displayMessage('system', 'Thinking...');
+      displayMessage('system', 'GobleGoble...');
 
       // Call Ollama through TokenTracker
       const response = await this.tracker.chat({
