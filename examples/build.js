@@ -30,7 +30,7 @@ const entryPoints = [
 ];
 
 // Output directory
-const outDir = path.join(__dirname, 'dist');
+const outDir = path.join(__dirname, '..', 'dist', 'examples');
 
 // Create output directory structure if it doesn't exist
 if (!fs.existsSync(outDir)) {
@@ -76,13 +76,13 @@ const buildConfig = {
     'xstate',
   ],
 
-  // Plugin to resolve ../src/ imports to ../../../dist/
-  // From examples/dist/servers/, we need to go up 3 levels to reach project root
+  // Plugin to resolve ../src/ imports to ../../
+  // From dist/examples/servers/, we need to go up 2 levels to reach dist/
   plugins: [{
     name: 'resolve-src-to-dist',
     setup(build) {
       build.onResolve({ filter: /^\.\.\/\.\.\/src\// }, args => {
-        const resolved = args.path.replace(/^\.\.\/\.\.\/src\//, '../../../dist/');
+        const resolved = args.path.replace(/^\.\.\/\.\.\/src\//, '../../');
         return {
           path: resolved,
           external: true,
@@ -139,7 +139,7 @@ async function build() {
 
     console.log('Built files:');
     entryPoints.forEach(ep => {
-      console.log(`  - examples/dist/${ep.out}`);
+      console.log(`  - dist/examples/${ep.out}`);
     });
 
     if (result.warnings.length > 0) {

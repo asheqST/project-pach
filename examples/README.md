@@ -49,12 +49,12 @@ Located in `servers/tools/`, these demonstrate different interaction patterns:
 
 2. **Run a server example:**
    ```bash
-   ./examples/dist/servers/stdio-server
+   ./dist/examples/servers/stdio-server
    ```
 
 3. **Run a client example:**
    ```bash
-   ./examples/dist/clients/ollama-chat-client
+   ./dist/examples/clients/ollama-chat-client
    ```
 
 ## Additional Resources

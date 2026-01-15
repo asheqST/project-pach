@@ -71,7 +71,7 @@ class OllamaMCPChatClient {
     displayMessage('system', 'Starting MCP Flow server...');
 
     // Start MCP server via stdio
-    const serverPath = path.join(__dirname, '..', 'servers', 'stdio-server.js');
+    const serverPath = path.join(__dirname, '..', 'servers', 'stdio-server');
     this.transport = new StdioTransportAdapter({
       command: 'node',
       args: [serverPath],

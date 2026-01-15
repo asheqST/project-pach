@@ -80,7 +80,7 @@ class InteractiveMCPChatClient {
     displayMessage('system', 'Starting MCP Flow server...');
 
     // Start MCP server via stdio
-    const serverPath = path.join(__dirname, '..', '..','examples','dist', 'stdio-server.js');
+    const serverPath = path.join(__dirname, '..', 'examples', 'servers', 'stdio-server');
     this.transport = new StdioTransportAdapter({
       command: 'node',
       args: [serverPath],

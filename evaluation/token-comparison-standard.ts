@@ -68,7 +68,7 @@ class StandardMCPChatClient {
       'dist',
       'examples',
       'servers',
-      'standard-mcp-server.js'
+      'standard-mcp-server'
     );
     this.transport = new StdioTransportAdapter({
       command: 'node',

@@ -92,29 +92,29 @@ npm run build:all
 ### Standard MCP Mode (Multi-Step Tool Calls)
 
 ```bash
-node evaluation/dist/token-comparison-standard.js
+node dist/evaluation/token-comparison-standard.js
 
 # With specific model:
-node evaluation/dist/token-comparison-standard.js --model mistral
+node dist/evaluation/token-comparison-standard.js --model mistral
 ```
 
 ```bash
 # For OpenRouter:
-node evaluation/dist/token-comparison-standard-openrouter.js
+node dist/evaluation/token-comparison-standard-openrouter.js
 ```
 
 ### Interactive MCP Flow Mode
 
 ```bash
-node evaluation/dist/token-comparison-interactive-ollama.js
+node dist/evaluation/token-comparison-interactive-ollama.js
 
 # With specific model:
-node evaluation/dist/token-comparison-interactive-ollama.js --model qwen2.5
+node dist/evaluation/token-comparison-interactive-ollama.js --model qwen2.5
 ```
 
 ```bash
 # For OpenRouter:
-node evaluation/dist/token-comparison-interactive-openrouter.js
+node dist/evaluation/token-comparison-interactive-openrouter.js
 ```
 
 ## Features

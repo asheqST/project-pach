@@ -22,7 +22,7 @@ const entryPoints = [
 ];
 
 // Output directory
-const outDir = path.join(__dirname, 'dist');
+const outDir = path.join(__dirname, '..', 'dist', 'evaluation');
 
 // Create output directory if it doesn't exist
 if (!fs.existsSync(outDir)) {
@@ -55,12 +55,12 @@ const buildConfig = {
     'xstate',
   ],
 
-  // Plugin to resolve ../src/ imports to ../dist/
+  // Plugin to resolve ../src/ imports to ../
   plugins: [{
     name: 'resolve-src-to-dist',
     setup(build) {
       build.onResolve({ filter: /^\.\.\/src\// }, args => {
-        const resolved = args.path.replace(/^\.\.\/src\//, '../dist/');
+        const resolved = args.path.replace(/^\.\.\/src\//, '../');
         return {
           path: resolved,
           external: true,
@@ -85,7 +85,7 @@ async function build() {
     console.log('Built files:');
     entryPoints.forEach(file => {
       const outFile = file.replace('.ts', '.js');
-      console.log(`  - evaluation/dist/${outFile}`);
+      console.log(`  - dist/evaluation/${outFile}`);
     });
 
     if (result.warnings.length > 0) {
