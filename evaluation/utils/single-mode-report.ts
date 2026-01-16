@@ -140,7 +140,7 @@ export class SingleModeReportGenerator {
   /**
    * Save reports to files
    */
-  static async saveReports(report: SessionReport, outputDir: string = '.'): Promise<void> {
+  static async saveReports(report: SessionReport, outputDir: string = 'evaluation-reports'): Promise<void> {
     // Ensure output directory exists
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir, { recursive: true });
