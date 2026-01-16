@@ -25,8 +25,8 @@ MCP Flow extends the Model Context Protocol to enable tools that can have dialog
 
 ```bash
 # Clone the repository
-git clone https://github.com/[YOUR-ORG]/mcp-flow.git
-cd mcp-flow
+https://github.com/asheqST/project-pach
+cd project-pach
 
 # Install dependencies
 npm install
