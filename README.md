@@ -96,7 +96,7 @@ server.handleRequest(request).then(response => {
 
 ### Client Usage
 
-> **Tip:** See a complete working example at `./dist/examples/clients/ollama-chat-client` (requires Ollama running on localhost:11434)
+> **Tip:** See a complete working example at `examples/clients/ollama-chat-client` (requires Ollama running on localhost:11434)
 
 Create your own client:
 
