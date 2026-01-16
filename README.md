@@ -21,13 +21,34 @@ MCP Flow extends the Model Context Protocol to enable tools that can have dialog
 
 ### Installation
 
+> **Note:** MCP Flow is not yet published to npm. For now, clone and build from source:
+
 ```bash
-npm install mcp-flow
+# Clone the repository
+git clone https://github.com/[YOUR-ORG]/mcp-flow.git
+cd mcp-flow
+
+# Install dependencies
+npm install
+
+# Build the library and examples
+npm run build
 ```
+
+This will:
+- Compile the library from `src/` to `dist/`
+- Bundle example executables in `dist/examples/`
+- Create evaluation scripts in `dist/evaluation/`
+
+**Node.js Requirement:** 18 or higher
 
 MCP Flow is built on top of the official `@modelcontextprotocol/sdk`, providing interactive capabilities as an extension to the base MCP protocol.
 
 ### Server Setup
+
+> **Tip:** After building, you can run the complete stdio-server example with: `./dist/examples/servers/stdio-server`
+
+Create your own interactive server:
 
 ```typescript
 import { InteractiveServer } from 'mcp-flow';
@@ -75,6 +96,10 @@ server.handleRequest(request).then(response => {
 
 ### Client Usage
 
+> **Tip:** See a complete working example at `./dist/examples/clients/ollama-chat-client` (requires Ollama running on localhost:11434)
+
+Create your own client:
+
 ```typescript
 import { InteractiveClient } from 'mcp-flow';
 
@@ -92,6 +117,44 @@ const result = await client.runInteractive(
 
 console.log('Booking complete:', result);
 ```
+
+### Using MCP Flow in Your Project
+
+**Option 1: Local Development (Direct Source Imports)**
+
+While developing locally, import directly from the source:
+
+```typescript
+import { InteractiveServer } from './path/to/mcp-flow/src/server/index';
+import { InteractiveClient } from './path/to/mcp-flow/src/client/interactive-client';
+```
+
+**Option 2: Build and Link**
+
+Build the library and use npm link:
+
+```bash
+# In the mcp-flow directory
+npm run build
+npm link
+
+# In your project directory
+npm link mcp-flow
+```
+
+Then import normally:
+
+```typescript
+import { InteractiveServer, InteractiveClient } from 'mcp-flow';
+```
+
+**Option 3: Future (Once Published to npm)**
+
+```bash
+npm install mcp-flow
+```
+
+This option will be available once MCP Flow is published to the npm registry.
 
 ## Patterns
 
@@ -285,6 +348,24 @@ const token = handler.createToken(sessionId, toolName);
 ```
 
 ## Examples
+
+All examples are located in the `examples/` directory and are built into standalone executables.
+
+**Running the Examples:**
+
+```bash
+# Build all examples (if not already built)
+npm run build:examples
+
+# Run the stdio server
+./dist/examples/servers/stdio-server
+
+# Run the Ollama chat client (requires Ollama installed and running)
+./dist/examples/clients/ollama-chat-client
+
+# Run the standard (non-interactive) MCP server for comparison
+./dist/examples/servers/standard-mcp-server
+```
 
 ### Server Examples with Interactive Tools
 
